@@ -19,26 +19,38 @@ u16int inw(u16int port)
    return ret;
 }
 
-void memcpy(void *dest, const void *src, size_t n)
+void memcpy(int *dest, const void *src, size_t n)
 {
-   // implement
+   for (int i = 0; i < n; i++) { *(dest + i) = *(src + i); }
+}
+void memcpy(unsigned int *dest, const void *src, size_t n)
+{
+   for (int i = 0; i < n; i++) { *(dest + i) = *(src + i); }
+}
+void memcpy(char *dest, const void *src, size_t n)
+{
+   for (int i = 0; i < n; i++) { *(dest + i) = *(src + i); }
+}
+void memcpy(unsigned char *dest, const void *src, size_t n)
+{
+   for (int i = 0; i < n; i++) { *(dest + i) = *(src + i); }
 }
 
 void memset(int *ptr, int x, size_t n)
 {
-   for (int i = 0; i < n; i++) { *ptr = x; }
+   for (int i = 0; i < n; i++) { *(ptr + i) = x; }
 }
 void memset(char *ptr, int x, size_t n)
 {
-   for (int i = 0; i < n; i++) { *ptr = x; }
+   for (int i = 0; i < n; i++) { *(ptr + i) = x; }
 }
 void memset(unsigned char *ptr, int x, size_t n)
 {
-   for (int i = 0; i < n; i++) { *ptr = x; }
+   for (int i = 0; i < n; i++) { *(ptr + i) = x; }
 }
 void memset(unsigned int *ptr, int x, size_t n)
 {
-   for (int i = 0; i < n; i++) { *ptr = x; }
+   for (int i = 0; i < n; i++) { *(ptr + i) = x; }
 }
 
 size_t strlen(char *str)

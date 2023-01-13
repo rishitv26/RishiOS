@@ -33,10 +33,8 @@ static void scroll()
    }
 }
 
-void monitor_put(char c)
+void print_char(char c, u8int backColour, u8int foreColour)
 {
-   u8int backColour = 0;
-   u8int foreColour = 15;
    u16int attribute = (backColour << 4) | (foreColour & 0x0F) << 8;
    u16int *location;
    if (c == 0x08 && cursor_x) { cursor_x--; } // backspace
@@ -45,17 +43,17 @@ void monitor_put(char c)
    else if (c == '\n') { cursor_x = 0; cursor_y++; } // new line
    else if(c >= ' ') // normal character
    {
-       location = video_memory + (cursor_y*80 + cursor_x);
+       location = VIDEO_MEM + (cursor_y * CHAR_WIDTH + cursor_x);
        *location = c | attribute;
        cursor_x++;
    }
    // new line check:
-   if (cursor_x >= 80) { cursor_x = 0; cursor_y ++; }
+   if (cursor_x >= CHAR_WIDTH) { cursor_x = 0; cursor_y ++; }
    scroll();
    move_cursor();
 }
 
-void monitor_clear()
+void clear()
 {
     for (int i = 0; i < CHAR_HEIGHT * CHAR_WIDTH; i++) { *(VIDEO_MEM + i*2) = ''; }
     cursor_x = 0;
@@ -63,7 +61,7 @@ void monitor_clear()
     move_cursor();
 }
 
-void monitor_write(char *c)
+void print(char *c)
 {
    int i = 0;
    while (c[i]) { monitor_put(c[i++]); }

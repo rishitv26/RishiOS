@@ -9,8 +9,8 @@
 unsigned int cursor_y
 unsigned int cursor_x;
 
-void monitor_put(char c);
-void monitor_clear();
-void monitor_write(char *c);
+void print_char(char c, u8int backColour, u8int foreColour);
+void clear();
+void print(char *c);
 
 #endif // MONITOR_H
