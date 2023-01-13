@@ -1,5 +1,10 @@
 #include "common.h"
 
+struct boot
+{
+    
+}
+
 extern "C" int main (struct boot *boot_ptr)
 {
     clear();
