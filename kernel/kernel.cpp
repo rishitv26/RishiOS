@@ -1,9 +1,8 @@
-#include "io.cpp"
+#include "common.h"
 
-extern "C" void program()
+extern "C" int main (struct boot *boot_ptr)
 {
-    char mes[] = "HELLO CHILDREN HOW ARE U";
-    char mes2[] = "pompida, pompida!";
-    println(mes);
-    println(mes2);
+    monitor_clear();
+    monitor_write("Hello Children How Are You!!!!!!\nThis is RishitOS!");
+    return 0; // exit code
 }
