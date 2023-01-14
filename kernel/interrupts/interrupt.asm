@@ -1,6 +1,39 @@
-%macro ISR_NOERRCODE 1  ; define macro, one parameter
-  [GLOBAL isr%1]        ; %1 accesses first parameter.
-  isr%1:
+[GLOBAL idt_flush] ; get idt_flush function from c code
+[EXTERN isr_handler]
+
+idt_flush:
+    mov eax, [esp + 4] ; get idt pointer
+    lidt [eax]         ; get it into action
+    ret                ; return void
+
+isr_common_stub:            ; common interrupt handler
+   pusha                    ; pushes edi, esi, ebp, esp, ebx, edx, ecx, eax
+
+   mov ax, ds               ; lower 16-bits of eax, set to ds
+   push eax                 ; save data segment descriptor
+
+   mov ax, 0x10             ; load kernel data segment descriptor
+   mov ds, ax
+   mov es, ax
+   mov fs, ax
+   mov gs, ax
+
+   call isr_handler
+
+   pop eax                  ; reload original data segment descriptor
+   mov ds, ax
+   mov es, ax
+   mov fs, ax
+   mov gs, ax
+
+   popa                     ; removes edi, esi, ebp
+   add esp, 8               ; cleans up the errors
+   sti
+   iret                     ; cleans up the errors
+
+%macro ISR_NOERRCODE 1  
+  [GLOBAL int%1]        
+  int%1:
     cli
     push byte 0
     push byte %1
@@ -8,8 +41,8 @@
 %endmacro
 
 %macro ISR_ERRCODE 1
-  [GLOBAL isr%1]
-  isr%1:
+  [GLOBAL int%1]
+  int%1:
     cli
     push byte %1
     jmp isr_common_stub
@@ -25,11 +58,11 @@ ISR_NOERRCODE 6
 ISR_NOERRCODE 7
 ISR_ERRCODE   8
 ISR_NOERRCODE 9
-ISR_ERRCODE 10
-ISR_ERRCODE 11
-ISR_ERRCODE 12
-ISR_ERRCODE 13
-ISR_ERRCODE 14
+ISR_ERRCODE   10
+ISR_ERRCODE   11
+ISR_ERRCODE   12
+ISR_ERRCODE   13
+ISR_ERRCODE   14
 ISR_NOERRCODE 15
 ISR_NOERRCODE 16
 ISR_NOERRCODE 17

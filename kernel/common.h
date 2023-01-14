@@ -13,6 +13,7 @@ typedef        u32int  size_t;
 void outb(u16int port, u8int value);
 u8int inb(u16int port);
 u16int inw(u16int port);
+void DEBUG();
 
 void memcpy(void *dest, const void *src, size_t n);
 void memset(void *ptr, int x, size_t n);

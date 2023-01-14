@@ -42,6 +42,6 @@ echo MAKE INSTALL-GCC:
 sudo make install-gcc
 echo MAKE INSTALL-TARGET-LIBGCC:
 sudo make install-target-libgcc
-echo HERE U GO MAYBE:
+echo DIS IS UR LOCATION OFF GCC:
 ls /usr/local/i386elfgcc/bin
 export PATH="$PATH:/usr/local/i386elfgcc/bin"

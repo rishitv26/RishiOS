@@ -1,49 +1,20 @@
 #include "des_tables.h"
 
-extern void idt_flush(u32int); // output info
-
-static void init_idt(); // initialize the table
+extern void idt_flush(u32int); // give computer idt table to use:
 static void idt_set_gate(u8int, u32int, u16int, u8int);
+static void init_idt();
 
 idt_entry_t idt_entries[256]; // maximum amount of interrupts
 idt_ptr_t   idt_ptr; // pointer to our entries
 
-extern void int0() {};
-extern void int1() {};
-extern void int2() {};
-extern void int3() {};
-extern void int4() {};
-extern void int5() {};
-extern void int6() {};
-extern void int7() {};
-extern void int8() {};
-extern void int9() {};
-extern void int10() {};
-extern void int11() {};
-extern void int12() {};
-extern void int13() {};
-extern void int14() {};
-extern void int15() {};
-extern void int16() {};
-extern void int17() {};
-extern void int18() {};
-extern void int19() {};
-extern void int20() {};
-extern void int21() {};
-extern void int22() {};
-extern void int23() {};
-extern void int24() {};
-extern void int25() {};
-extern void int26() {};
-extern void int27() {};
-extern void int28() {};
-extern void int29() {};
-extern void int30() {};
-extern void int31() {};
-
-void init_idt()
+void init_idt_tables()
 {
-    idt_ptr.limit = sizeof(idt_entry_t) * 256 -1;
+    init_idt();
+}
+
+static void init_idt()
+{
+    idt_ptr.limit = sizeof(idt_entry_t) * 256 - 1;
     idt_ptr.base  = (u32int)&idt_entries;
 
     idt_set_gate( 0, (u32int)int0 , 0x08, 0x8E);

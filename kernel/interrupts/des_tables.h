@@ -19,6 +19,7 @@ struct idt_ptr_struct // array of idt_entries as pointer
    u32int base;                // The address of the first element in array.
 } __attribute__((packed));
 typedef struct idt_ptr_struct idt_ptr_t;
+void init_idt_tables();
 
 // functions for what to do on each interrupt: ------------------------------
 extern void int0();
