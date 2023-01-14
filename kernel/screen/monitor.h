@@ -6,11 +6,12 @@
 #define CHAR_HEIGHT 25
 #define VIDEO_MEM 0xb8000
 
-unsigned int cursor_y
-unsigned int cursor_x;
+const unsigned int return_cursor_y();
+const unsigned int return_cursor_x();
 
 void print_char(char c, u8int backColour, u8int foreColour);
 void clear();
-void print(char *c);
+void print(char *c, u8int backColour, u8int foreColour);
+char* itoa(int value, int base);
 
 #endif // MONITOR_H
