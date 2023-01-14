@@ -1,6 +1,5 @@
 #include "common.h"
 #include "screen/monitor.h"
-#include "interrupts/des_tables.h"
 
 extern int main ()
 {
