@@ -35,8 +35,3 @@ size_t strlen(void *str)
    while (*((char*)str + i)) { i++; }
    return i + 1;
 }
-
-void DEBUG()
-{
-   while (1);
-}
