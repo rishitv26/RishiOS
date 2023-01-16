@@ -1,36 +1,29 @@
 ; boot code!
 [org 0x7c00]
+[bits 32]
 mov ah, 0x0e ; so we can print in real mode
 
-;; prepare for disk load:
-mov bx, 0x1000
-mov es, bx
-mov bx, 0x0
-
-mov dh, 0x0
-mov dl, 0x0
-mov ch, 0x0
-mov cl, 0x02
-
-read_disk:
-    mov ah, 0x02 ; why is it freezing here?
-    mov al, 0x01 ; and here?
-    int 0x13 ; also here?
-    jc redo  ;; retry at disk read error
-
-    mov ax, 0x1000 ;; set all segments to kernel, or whatever ax is supposed to be.
-    mov ds, ax
+;; disk load:
+diskload:
+    push dx
+    mov ax, 0
     mov es, ax
-    mov fs, ax
-    mov gs, ax
-    mov ss, ax
+    mov ah, 2
+    mov al, 1
+    mov ch, 0
+    mov dh, 0
+    mov cl, 0
+    mov bx, 0x7e00
+    int 0x13
+    jc disk_error
+    pop dx
+    cmp dh, al
+    jne disk_error
 
-    jmp 0x1000:0 ;; jump to kernel in next sector!
-
-redo:
+disk_error:
     mov bx, message
     call print
-    jmp read_disk
+    jmp diskload
 
 print:
     pusha
@@ -48,12 +41,14 @@ end_print:
     popa
     ret
 
+message: db "disk error, retrying disk load (interupt 0x13 failed)...", 0
+
+;; helping functions:
 debug:
     mov bx, debugmsg
     call print
     jmp $
 
-message: db "RETRYING DISK LOAD", 0
 debugmsg: db "this is a debug message", 0
 
 times 510-($-$$) db 0
