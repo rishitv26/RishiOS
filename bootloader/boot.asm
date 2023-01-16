@@ -14,10 +14,8 @@ mov cl, 0x02
 
 read_disk:
     mov ah, 0x02 ; why is it freezing here?
-    call debug
-    mov al, 0x01
-    int 0x13
-
+    mov al, 0x01 ; and here?
+    int 0x13 ; also here?
     jc redo  ;; retry at disk read error
 
     mov ax, 0x1000 ;; set all segments to kernel, or whatever ax is supposed to be.
