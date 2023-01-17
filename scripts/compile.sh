@@ -1,14 +1,12 @@
 cd .. # get out of scripts folder
 
-cd bootloader # start with compiling bootloader...
-nasm boot.asm -f bin -o ../bin/bin/boot.bin
-cd ..
-
-cd kernel # kernel time!
-nasm kernel.asm -f bin -o ../bin/bin/kernel.bin
-cd ..
+cd bootloader # compile bootloader
+nasm -f bin -o ../bin/bin/boot.bin boot.asm
+nasm -f bin -o ../bin/bin/loader.bin loader.asm
+cd .. # done with bootloader
 
 # time to give birth to an operating system!
-cat "bin/bin/boot.bin" "bin/bin/kernel.bin" > "bin/iso/os.bin"
+dd if=bin/bin/boot.bin of=boot.img bs=512 count=1 conv=notrunc # slap in the bootloader...
+dd if=bin/bin/loader.bin of=boot.img bs=512 count=5 seek=1 conv=notrunc # slap in the loader...
 
 cd scripts # end of compilation

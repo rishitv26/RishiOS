@@ -1,55 +1,65 @@
-; boot code!
-[org 0x7c00]
-[bits 32]
-mov ah, 0x0e ; so we can print in real mode
+[bits 16]
+[org 0x7c00] ; MBR boot location
 
-;; disk load:
-diskload:
-    push dx
-    mov ax, 0
+start: ; start command.
+    mov bx, mes
+    call print
+    xor ax, ax ; initialize our lovely stack
+    mov ds, ax
     mov es, ax
-    mov ah, 2
-    mov al, 1
-    mov ch, 0
-    mov dh, 0
-    mov cl, 0
-    mov bx, 0x7e00
+    mov ss, ax
+    mov sp, 0x7c00
+
+testext:
+    mov [driveid], dl
+    mov ah, 0x41
+    mov bx, 0x55aa
     int 0x13
-    jc disk_error
-    pop dx
-    cmp dh, al
-    jne disk_error
+    jc nosupport ; do something if disk extension is not supported
+    cmp bx, 0xaa55
+    jne nosupport ; do something if disk extension is not supported
 
-disk_error:
-    mov bx, message
+loadloader:
+    mov si, readpack ; this is structure for loading proccess
+    mov word[si], 0x10 ; size
+    mov word[si + 2], 5 ; number of sectors to be loaded
+    mov word[si + 4], 0x7e00 ; where our next disk is
+    mov word[si + 6], 0
+    mov dword[si + 8], 1 ; which sector exactly is going to be loaded
+    mov dword[si + 0xc], 0
+    jc loaderror ; if it fails, print error and halt.
+    mov dl, [driveid]
+    mov ah, 0x42
+    int 0x13
+    jc loaderror
+    mov dl, [driveid]
+    jmp 0x7e00 ; far jump to next section of our code
+
+loaderror:
+nosupport:
+    mov bx, nosup
     call print
-    jmp diskload
+end:
+    hlt ; this will be resumed with a interupt
+    jmp end
 
-print:
-    pusha
-    jmp print_func
+%include 'print_real.asm'
+mes: db "[*] booting...", 0
+nosup: db "[*] error.", 0
+driveid: db 0
+readpack: times 16 db 0
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+times (0x1be-($-$$)) db 0
 
-print_func:
-    mov al, [bx]
-    int 0x10
-    inc bx
-    cmp al, 0
-    jne print
-    jmp end_print
-
-end_print:
-    popa
-    ret
-
-message: db "disk error, retrying disk load (interupt 0x13 failed)...", 0
-
-;; helping functions:
-debug:
-    mov bx, debugmsg
-    call print
-    jmp $
-
-debugmsg: db "this is a debug message", 0
-
-times 510-($-$$) db 0
-db 0x55, 0xaa
+db 80h ; boot indicater for bios                     ;
+db 0,2,0 ; starting part of CHS                      ;
+db 0f0h ; type of CHS                                ;
+db 0ffh, 0ffh, 0ffh ; end of CHS                     ;
+dd 1 ; tells that this is the start AKA boot sector  ; This whole thing is to trick some BIOS's
+dd (20 * 16 * 63 - 1) ; calculate the size via math  ; that this is a hard disk
+                                                     ;
+times (16*3) db 0 ; more zero's                      ;
+                                                     ;
+db 0x55
+db 0xaa ; these seperate this boot code from rest of memory. 
+; this is what computer looks for on startup.
