@@ -11,6 +11,6 @@ unsigned int cursor_x;
 
 void print_char(char c, u8int backColour, u8int foreColour);
 void clear();
-void print(char *c);
+void print(char *c, u8int backColour, u8int foreColour);
 
 #endif // MONITOR_H

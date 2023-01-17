@@ -61,8 +61,8 @@ void clear()
     move_cursor();
 }
 
-void print(char *c)
+void print(char *c, u8int backColour, u8int foreColour)
 {
    int i = 0;
-   while (c[i]) { monitor_put(c[i++]); }
+   while (c[i]) { print_char(c[i++], backColour, foreColour); }
 }
