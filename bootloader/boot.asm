@@ -1,3 +1,8 @@
+;
+; This is where the operating system starts... the begining of everything...
+;
+;; tasks: read second sector into RAM, and jump to a less limited file, loader.asm
+
 [bits 16]
 [org 0x7c00] ; MBR boot location
 
