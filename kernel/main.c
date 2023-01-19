@@ -1,6 +1,14 @@
 #include "sys/sys.h"
 
+extern void shutdown();
+
 extern int main()
 {
-    return 0; // Our Kernel shut down...
+    shutdown(); // our Kernel shut down...
+    return 0; // shutdown complete
+}
+
+extern void shutdown()
+{
+
 }
