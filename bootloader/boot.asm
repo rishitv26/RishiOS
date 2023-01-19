@@ -49,7 +49,10 @@ end:
     jmp end
 
 %include 'print_real.asm'
-mes: db "[*] booting...", 0
+mes: 
+    db "[*] booting..."
+    times (80 - ($-mes)) db " "
+    db 0
 nosup: db "[*] error.", 0
 driveid: db 0
 readpack: times 16 db 0
