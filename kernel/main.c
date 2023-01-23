@@ -1,14 +1,17 @@
-#include "sys/sys.h"
+#include "lib/head.h"
+#include "interrupt/inter.h"
 
-extern void shutdown();
-
-extern int main()
+void main(void)
 {
-    shutdown(); // our Kernel shut down...
-    return 0; // shutdown complete
-}
+    const char* welcome_mes = "[*] WELCOME TO RishiOS, initializing other computer processes...\0";
+    int64_t val = 0x123456789ABCD; // for hex test
+    init_idt();
+    printk("[*] Successfully initialized IDT...");
 
-extern void shutdown()
-{
+    printk("%s\n", welcome_mes);
+    printk("TEST VAL: %x\n", val);
 
+    printk("TEST ASSERT -> ");
+    ASSERT(false);
+    // end of kernel
 }
