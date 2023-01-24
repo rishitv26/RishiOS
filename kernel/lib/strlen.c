@@ -110,10 +110,10 @@ static void write_screen(const char *buffer, int size, struct ScreenBuffer *sb, 
 // %u -> unsigned int print
 // %d -> int print
 // %s -> string print (string in string)...
-// print function can only print 1024 characters...
+// print function can only print SCREEN_WIDTH / 2 * SCREEN_HEIGHT characters...
 int printk(const char *format, ...) // the big print function with everything... returns total size of output
 {
-    char buffer[1024];
+    char buffer[SCREEN_WIDTH / 2 * SCREEN_HEIGHT];
     int buffer_size = 0;
     int64_t integer = 0;
     char *string = 0;
