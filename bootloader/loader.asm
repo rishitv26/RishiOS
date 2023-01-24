@@ -44,21 +44,23 @@ meminfo: ; See what sections of memory are usable for us.
     mov eax, 0xe820
     mov edx, 0x534d4150
     mov ecx, 20
-    mov edi, 0x9000
+    mov dword[0x9000], 0
+    mov edi, 0x9008
     xor ebx, ebx ; all of that is to prepare interrupt 15h
     int 0x15 ; This is there to get all free memory to us, to be used by kernel...
-    jc loaderror ; there was an error is retrieving memory map
+    jc loaderror ; there was an error in retrieving memory map
 
 startmeminfo:
     add edi, 20 ; increment by 20 to check if next block is usable...
+    inc drword[0x9000]
+    test ebx, ebx
+    jz finishmeminfo
+
     mov eax, 0xe820
     mov edx, 0x534d4150
     mov ecx, 20
     int 0x15; this is to check if memory block is availible to us...
-    jc finishmeminfo
-    
-    test ebx, ebx
-    jnz startmeminfo ; if we have more memory, keep on going...
+    jc startmeminfo ; keep on going if there is more memory availible to us...
     
 finishmeminfo:
     call kernelsuccess
