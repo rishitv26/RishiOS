@@ -52,7 +52,7 @@ meminfo: ; See what sections of memory are usable for us.
 
 startmeminfo:
     add edi, 20 ; increment by 20 to check if next block is usable...
-    inc drword[0x9000]
+    inc dword[0x9000]
     test ebx, ebx
     jz finishmeminfo
 

@@ -11,12 +11,12 @@ static void init_idt_entry(unsigned int vectnum, struct idt_entry *entry, uint64
     entry->attr = attribute;
     entry->mid = (uint16_t)(addr>>16);
     entry->high = (uint32_t)(addr>>32);
-    printk("[*] Setup Interrupt %u... Successfull!\n", vectnum);
+    // printk("[*] Setup Interrupt %u... Successfull!\n", vectnum);
 }
 
 void init_idt(void)
 {
-    init_idt_entry(0, &vectors[0],(uint64_t)vector0,0x8e); // setup all of the vectors individualy...
+    init_idt_entry(0, &vectors[0],(uint64_t)vector0,0x8e); // setup all of the 'vectors' individualy...
     init_idt_entry(1, &vectors[1],(uint64_t)vector1,0x8e);
     init_idt_entry(2, &vectors[2],(uint64_t)vector2,0x8e);
     init_idt_entry(3, &vectors[3],(uint64_t)vector3,0x8e);
@@ -40,7 +40,7 @@ void init_idt(void)
     idt_pointer.limit = sizeof(vectors)-1;
     idt_pointer.addr = (uint64_t)vectors;
     load_idt(&idt_pointer); // load our comeplete idt!
-    printk("[*] Successfully initialized IDT...");
+    printk("[*] Successfully initialized IDT...\n");
 }
 
 void handler(struct TrapFrame *tf) // the one handler function, connecting all vectors together...
