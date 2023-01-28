@@ -60,7 +60,7 @@ startmeminfo:
     mov edx, 0x534d4150
     mov ecx, 20
     int 0x15; this is to check if memory block is availible to us...
-    jc startmeminfo ; keep on going if there is more memory availible to us...
+    jnc startmeminfo ; keep on going if there is more memory availible to us...
     
 finishmeminfo:
     call kernelsuccess
@@ -184,19 +184,26 @@ pmentry:
 pm: ;; This code will run in 32 bit protected mode...
 enablepaging:
     cld
-    mov edi, 0x80000
+    mov edi, 0x70000
     xor eax, eax
     mov ecx, 0x10000 / 4
     rep stosd
 
-    mov dword[0x80000], 0x81007
-    mov dword[0x81000], 10000111b ;; all of that enables paging, memory management in long mode...
+    mov dword[0x70000], 0x71003
+    mov dword[0x71000], 10000011b ;; all of that enables paging, memory management in long mode...
+
+    mov eax, (0xffff800000000000 >> 39) ; where we want our kernel to live in paged memory...
+    and eax, 0x1ff
+
+    mov dword[0x70000 + eax*8], 0x72003
+    mov dword[0x72000], 10000011b
 updategdt:
     lgdt [gdt64ptr] ;; update our gdt for 64-bit mode
+    
     mov eax, cr4
     or eax, (1 << 5)
     mov cr4, eax
-    mov eax, 0x80000
+    mov eax, 0x70000
     mov cr3, eax ;; neccesary random thing for 64-but mode
 longmode: ; Finally! Long Mode!
     mov ecx, 0xc0000080
@@ -240,4 +247,5 @@ lm:
     mov rcx, 51200 / 8
     rep movsq
 
-    jmp 0x200000 ; Far jump to our beautifull kernel!
+    mov rax, 0xffff800000200000 ; virtual memory address...
+    jmp rax ; Far jump to our beautifull kernel!

@@ -44,7 +44,7 @@ static int decimal_to_string(char *buffer, int position, int64_t digits) // conv
 static int hex_to_string(char *buffer, int position, uint64_t digits) // convert hexadecimal to string
 {
     char digits_buffer[25];
-    char digits_map[16] = "0123456789abcdef";
+    char digits_map[16] = "0123456789ABCDEF";
     int size = 0;
 
     do {
@@ -56,7 +56,7 @@ static int hex_to_string(char *buffer, int position, uint64_t digits) // convert
         buffer[position++] = digits_buffer[i];
     }
 
-    buffer[position++] = 'H';
+    buffer[position++] = 'h';
 
     return size+1;
 }

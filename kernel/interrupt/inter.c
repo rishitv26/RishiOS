@@ -11,7 +11,7 @@ static void init_idt_entry(unsigned int vectnum, struct idt_entry *entry, uint64
     entry->attr = attribute;
     entry->mid = (uint16_t)(addr>>16);
     entry->high = (uint32_t)(addr>>32);
-    // printk("[*] Setup Interrupt %u... Successfull!\n", vectnum);
+    printk("[*] Setup Interrupt %u... Successfull!\n", vectnum);
 }
 
 void init_idt(void)

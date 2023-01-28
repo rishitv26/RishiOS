@@ -170,7 +170,7 @@ gdt64ptr:
 
 tss: ;; this will be our new interrupt handler in ring 3...
     dd 0
-    dq 0x150000
+    dq 0xffff800000190000
     times 88 db 0
     dd tsslen
 tsslen: equ $-tss
@@ -193,17 +193,19 @@ start:
     ; mov rax, SIRQ
     ; call sethandler
 
-    lgdt [gdt64ptr] ;; load another gdt specific to our kernel...
+    mov rax, gdt64ptr
+    lgdt [rax] ;; load another gdt specific to our kernel...
     ;; lidt [idtptr] ;; will be implemented in C
 
     mov rax, tss ;; load and init the tss to later be used in usermode!
-    mov [tssdes + 2], ax
+    mov rdi, tssdes
+    mov [rdi + 2], ax
     shr rax, 16
-    mov [tssdes + 4], al
+    mov [rdi + 4], al
     shr rax, 8
-    mov [tssdes + 7], al
+    mov [rdi + 7], al
     shr rax, 8
-    mov [tssdes + 8], eax
+    mov [rdi + 8], eax
     mov ax, 0x20
     ltr ax ;; done with tss!
 
@@ -253,15 +255,16 @@ intpic:   ;; setup interrupt controller:
     ; push userentry
     ; iretq ;; will be implemented in C
 
+    mov rax, kernelentry
     push 8
-    push kernelentry
+    push rax
     db 0x48
     retf ; far return...
 
 kernelentry: ;; our lovely little kernel in its full glory!
     ; xor ax, ax
     ; mov ss, ax
-    mov rsp, 0x200000 ; jump to kernel location...
+    mov rsp, 0xffff800000200000 ; jump to kernel location...
     call main
     ; sti
 
