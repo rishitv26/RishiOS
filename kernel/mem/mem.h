@@ -26,7 +26,7 @@ struct page {
 #define p2v(p) ((uint64_t)p + 0xffff800000000000) // convert from virtual to physical memory address
 #define p2v(p) ((uint64_t)p - 0xffff800000000000) // convert from physical to virtual memory address
 
-void init_mem(struct freemem *memory_map, uint64_t *p);
+void init_mem(struct freemem *memory_map);
 void *kalloc(void);
 void kfree(uint64_t v);
 

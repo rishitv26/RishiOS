@@ -8,7 +8,7 @@ static void free_region(uint64_t s, uint64_t e);
 static struct page free_memory; // our first page 'node'
 static uint64_t memory_end;
 
-void init_mem(struct freemem *memory_map, uint64_t *p) // work on this...
+void init_mem(struct freemem *memory_map) // work on this...
 {
     printk("\n[*] INITIALIZING MEMORY... (memory type 1 is usable memory for RishiOS)\n");
     int32_t count = *(int32_t*)0x9000;
@@ -40,14 +40,15 @@ void init_mem(struct freemem *memory_map, uint64_t *p) // work on this...
         if (vstart > (uint64_t)&end)
         {
             free_region(vstart, vend);
-        } else if (vend > (uint64_t)&end)
+        } 
+        else if (vend > (uint64_t)&end)
         {
             free_region((uint64_t)&end, vend);
         }
     }
 
     memory_end = (uint64_t)free_memory.next + PAGE_SIZE; // yay, inited the pages, YIPI YAHOI!
-    *p = memory_end;
+    printk("%x\n", memory_end);
 
     printk("[*] Successsfully initialized paging system...\n");
 }
