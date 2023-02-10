@@ -7,6 +7,7 @@ extern char end; // defined in linker script...
 static void free_region(uint64_t s, uint64_t e);
 static struct page free_memory; // our first page 'node'
 static uint64_t memory_end;
+uint64_t page_map;
 
 void init_mem(struct freemem *memory_map) // work on this...
 {
@@ -48,9 +49,9 @@ void init_mem(struct freemem *memory_map) // work on this...
     }
 
     memory_end = (uint64_t)free_memory.next + PAGE_SIZE; // yay, inited the pages, YIPI YAHOI!
-    printk("%x\n", memory_end);
 
-    printk("[*] Successsfully initialized paging system...\n");
+    init_kvm();
+    printk("[*] Successfully initialized memory system...\n");
 }
 
 static void free_region(uint64_t s, uint64_t e)
@@ -88,4 +89,99 @@ void * kalloc(void) // get needed page
     }
 
     return (void*)page_addr; // return location of the page at the end...
+}
+
+static PDPTR find_pml4t_entry(uint64_t map, uint64_t v, int alloc, uint32_t attribute)
+{
+    PDPTR *map_entry = (PDPTR*)map;
+    PDPTR pdptr = NULL;
+    unsigned int index = (v >> 39) & 0x1FF;
+
+    if ((uint64_t)map_entry[index] & PTE_P) {
+        pdptr = (PDPTR)p2v(PDE_ADDR(map_entry[index]));       
+    } 
+    else if (alloc == 1) {
+        pdptr = (PDPTR)kalloc();          
+        if (pdptr != NULL) {     
+            memset(pdptr, 0, PAGE_SIZE);     
+            map_entry[index] = (PDPTR)(v2p(pdptr) | attribute);           
+        }
+    } 
+
+    return pdptr;    
+}
+
+static PD find_pdpt_entry(uint64_t map, uint64_t v, int alloc, uint32_t attribute)
+{
+    PDPTR pdptr = NULL;
+    PD pd = NULL;
+    unsigned int index = (v >> 30) & 0x1FF;
+
+    pdptr = find_pml4t_entry(map, v, alloc, attribute);
+    if (pdptr == NULL)
+        return NULL;
+       
+    if ((uint64_t)pdptr[index] & PTE_P) {      
+        pd = (PD)p2v(PDE_ADDR(pdptr[index]));      
+    }
+    else if (alloc == 1) {
+        pd = (PD)kalloc();  
+        if (pd != NULL) {    
+            memset(pd, 0, PAGE_SIZE);       
+            pdptr[index] = (PD)(v2p(pd) | attribute);
+        }
+    } 
+
+    return pd;
+}
+
+int map_pages(uint64_t map, uint64_t v, uint64_t e, uint64_t pa, uint32_t attribute) // map the pages into a convenient map...
+{
+    uint64_t vstart = PAGE_DOWN(v);
+    uint64_t vend = PAGE_UP(e);
+    PD pd = NULL;
+    unsigned int index;
+
+    ASSERT(v < e);
+    ASSERT(pa % PAGE_SIZE == 0);
+    ASSERT(pa + vend - vstart <= 1024*1024*1024);
+
+    do {
+        pd = find_pdpt_entry(map, vstart, 1, attribute);    
+        if (pd == NULL) {
+            return false;
+        }
+
+        index = (vstart >> 21) & 0x1FF;
+        ASSERT(((uint64_t)pd[index] & PTE_P) == 0);
+
+        pd[index] = (PDE)(pa | attribute | PTE_ENTRY);
+
+        vstart += PAGE_SIZE;
+        pa += PAGE_SIZE;
+    } while (vstart + PAGE_SIZE <= vend);
+  
+    return 1;
+}
+
+void switch_vm(uint64_t map)
+{
+    load_cr3(v2p(map));   
+}
+
+static void setup_kvm(void) // setup the new memory management system...
+{
+    page_map = (uint64_t)kalloc();
+    ASSERT(page_map != 0);
+
+    memset((void*)page_map, 0, PAGE_SIZE);        
+    enum bool status = map_pages(page_map, KERNEL_BASE, memory_end, v2p(KERNEL_BASE), PTE_P|PTE_W);
+    ASSERT(status == true);
+}
+
+void init_kvm(void) // init function for the management system
+{
+    setup_kvm();
+    switch_vm(page_map);
+    printk("memory manager is working now\n");
 }

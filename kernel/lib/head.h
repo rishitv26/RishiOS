@@ -11,6 +11,7 @@ static enum bool {
     true = 1,
     false = 0
 };
+#define NULL 0
 
 // debug functions:
 #define ASSERT(e) if (!(e)) error_check(__FILE__, __LINE__);
