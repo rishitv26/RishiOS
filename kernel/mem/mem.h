@@ -44,7 +44,7 @@ void kfree(uint64_t v);
 
 void init_kvm(void);
 void switch_vm(uint64_t map);
-int map_pages(uint64_t map, uint64_t v, uint64_t e, uint64_t pa, uint32_t attribute);
+enum bool map_pages(uint64_t map, uint64_t v, uint64_t e, uint64_t pa, uint32_t attribute);
 void load_cr3(uint64_t map);
 
 #endif // MEM

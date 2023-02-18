@@ -79,7 +79,7 @@ void kfree(uint64_t v)
 void * kalloc(void) // get needed page
 {
     struct page *page_addr = free_memory.next;
-    if (page_addr)
+    if (page_addr != NULL)
     {
         ASSERT((uint64_t)page_addr % PAGE_SIZE == 0);
         ASSERT((uint64_t)page_addr >= (uint64_t)&end);
@@ -135,7 +135,7 @@ static PD find_pdpt_entry(uint64_t map, uint64_t v, int alloc, uint32_t attribut
     return pd;
 }
 
-int map_pages(uint64_t map, uint64_t v, uint64_t e, uint64_t pa, uint32_t attribute) // map the pages into a convenient map...
+enum bool map_pages(uint64_t map, uint64_t v, uint64_t e, uint64_t pa, uint32_t attribute) // map the pages into a convenient map...
 {
     uint64_t vstart = PAGE_DOWN(v);
     uint64_t vend = PAGE_UP(e);
@@ -161,7 +161,7 @@ int map_pages(uint64_t map, uint64_t v, uint64_t e, uint64_t pa, uint32_t attrib
         pa += PAGE_SIZE;
     } while (vstart + PAGE_SIZE <= vend);
   
-    return 1;
+    return true;
 }
 
 void switch_vm(uint64_t map)
