@@ -49,8 +49,9 @@ void init_mem(struct freemem *memory_map) // work on this...
     }
 
     memory_end = (uint64_t)free_memory.next + PAGE_SIZE; // yay, inited the pages, YIPI YAHOI!
+    printk("memory_end = %x", memory_end);
 
-    init_kvm();
+    init_kvm(); // this is giving me the error... please help
     printk("[*] Successfully initialized memory system...\n");
 }
 
