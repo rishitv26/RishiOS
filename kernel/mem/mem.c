@@ -32,7 +32,7 @@ void init_mem(struct freemem *memory_map) // work on this...
         }
         printk("---> %x     %uKB    %u\n", mem_map[i].address, mem_map[i].length / 1024, (uint64_t)mem_map[i].type);
     }
-    printk("TOTAL FREE MOMERY -> %uMB\n[*] setting up paging...\n", total/1048576);
+    printk("TOTAL FREE MOMERY -> %uMB\n[*] setting up paging...\n\n", total / 1048576);
     for (int i = 0; i < free_c; i++) // split free mem into pages of 2mb
     {
         uint64_t vstart = p2v(free_mem[i].address);
@@ -49,7 +49,6 @@ void init_mem(struct freemem *memory_map) // work on this...
     }
 
     memory_end = (uint64_t)free_memory.next + PAGE_SIZE; // yay, inited the pages, YIPI YAHOI!
-    printk("memory_end = %x\n", memory_end);
 
     init_kvm(); // this is giving me the error... please help
     printk("[*] Successfully initialized memory system...\n");
