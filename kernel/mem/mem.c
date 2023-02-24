@@ -11,7 +11,7 @@ uint64_t page_map;
 
 void init_mem(struct freemem *memory_map) // work on this...
 {
-    printk("\n[*] INITIALIZING MEMORY... (memory type 1 is usable memory for RishiOS)\n");
+    printk("\n[*] INITIALIZING MEMORY... (memory type 1 is usable memory\n");
     int32_t count = *(int32_t*)0x9000;
     uint64_t total = 0;
     struct e820 *mem_map = (struct e820*)0x9008;
