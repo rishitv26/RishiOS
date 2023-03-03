@@ -10,6 +10,6 @@ void main(void)
     printk("%s\n", welcome_mes);
     
     init_idt(); // initialize interrupts...
-    init_mem(MEM_MAP); // initialize memory map
+    init_mem(MEM_MAP); // initialize memory map...
     // end of kernel
 }
