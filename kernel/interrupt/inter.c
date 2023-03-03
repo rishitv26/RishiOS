@@ -37,7 +37,7 @@ void init_idt(void)
     init_idt_entry(32, &vectors[32],(uint64_t)vector32,0x8e);
     init_idt_entry(39, &vectors[39],(uint64_t)vector39,0x8e);
 
-    idt_pointer.limit = sizeof(vectors)-1;
+    idt_pointer.limit = sizeof(vectors) - 1;
     idt_pointer.addr = (uint64_t)vectors;
     load_idt(&idt_pointer); // load our comeplete idt!
     printk("[*] Successfully initialized IDT...\n");

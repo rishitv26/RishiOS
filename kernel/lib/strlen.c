@@ -1,5 +1,24 @@
 #include "head.h"
 
+void enable_cursor(uint8_t cursor_start, uint8_t cursor_end)
+{
+	outb(0x3D4, 0x0A);
+	outb(0x3D5, (inb(0x3D5) & 0xC0) | cursor_start);
+ 
+	outb(0x3D4, 0x0B);
+	outb(0x3D5, (inb(0x3D5) & 0xE0) | cursor_end);
+}
+
+void update_cursor(int x, int y)
+{
+	uint16_t pos = y * SCREEN_WIDTH + x;
+ 
+	outb(0x3D4, 0x0F);
+	outb(0x3D5, (uint8_t) (pos & 0xFF));
+	outb(0x3D4, 0x0E);
+	outb(0x3D5, (uint8_t) ((pos >> 8) & 0xFF));
+}
+
 int strlen(void *arr)
 {
     int len = 0;
@@ -20,7 +39,7 @@ static int udecimal_to_string(char *buffer, int position, uint64_t digits) // co
         digits /= 10;
     } while (digits != 0);
 
-    for (int i = size-1; i >= 0; i--) {
+    for (int i = size - 1; i >= 0; i--) {
         buffer[position++] = digits_buffer[i];
     }
 
@@ -113,6 +132,7 @@ static void write_screen(const char *buffer, int size, struct ScreenBuffer *sb, 
 // print function can only print SCREEN_WIDTH / 2 * SCREEN_HEIGHT characters...
 int printk(const char *format, ...) // the big print function with everything... returns total size of output
 {
+    int x, y = 0;
     char buffer[SCREEN_WIDTH / 2 * SCREEN_HEIGHT];
     int buffer_size = 0;
     int64_t integer = 0;
@@ -151,11 +171,14 @@ int printk(const char *format, ...) // the big print function with everything...
                     buffer[buffer_size++] = '%';
                     i--;
             }
-        }     
+        }
+        x++;
+        if (x % (SCREEN_WIDTH / 2) == 0) { y += 1; x = 0; }   
     }
 
-    write_screen(buffer, buffer_size, &screen_buffer, 0xf); // 0xf is color, while
+    write_screen(buffer, buffer_size, &screen_buffer, 0xf); // 0xf is color, white
     va_end(args);
+    update_cursor(x, y);
 
     return buffer_size;
 }
@@ -167,4 +190,11 @@ void error_check(char *file, uint64_t line)
     printk("HALTING SYSTEM...");
 
     while (true);
+}
+
+uint64_t rdtsc(void)
+{
+    uint32_t low, high;
+    asm volatile("rdtsc":"=a"(low),"=d"(high));
+    return ((uint64_t)high << 32) | low;
 }
