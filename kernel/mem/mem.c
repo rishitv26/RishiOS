@@ -182,7 +182,6 @@ static void setup_kvm(void) // setup the new memory management system...
 void init_kvm(void) // init function for the management system
 {
     setup_kvm();
-    // ASSERT(false);
     switch_vm(page_map);
     printk("memory manager is working now\n");
 }
