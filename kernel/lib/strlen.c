@@ -1,32 +1,14 @@
 #include "head.h"
-
-void enable_cursor(uint8_t cursor_start, uint8_t cursor_end)
-{
-	outb(0x3D4, 0x0A);
-	outb(0x3D5, (inb(0x3D5) & 0xC0) | cursor_start);
- 
-	outb(0x3D4, 0x0B);
-	outb(0x3D5, (inb(0x3D5) & 0xE0) | cursor_end);
-}
-
-void update_cursor(int x, int y)
-{
-	uint16_t pos = y * SCREEN_WIDTH + x;
- 
-	outb(0x3D4, 0x0F);
-	outb(0x3D5, (uint8_t) (pos & 0xFF));
-	outb(0x3D4, 0x0E);
-	outb(0x3D5, (uint8_t) ((pos >> 8) & 0xFF));
-}
+#include "../mem/mem.h"
 
 int strlen(void *arr)
 {
     int len = 0;
     while (((int*)arr + len)) len++;
-    return len - 1; // since it also counts the null element too
+    return len; // since it also counts the null element too
 }
 
-static struct ScreenBuffer screen_buffer = {(char*)0xb8000, 0, 0}; // init
+static struct ScreenBuffer screen_buffer = {(char*)p2v(0xb8000), 0, 0}; // init
 
 static int udecimal_to_string(char *buffer, int position, uint64_t digits) // convert unsigned int to string...
 {
@@ -178,7 +160,6 @@ int printk(const char *format, ...) // the big print function with everything...
 
     write_screen(buffer, buffer_size, &screen_buffer, 0xf); // 0xf is color, white
     va_end(args);
-    update_cursor(x, y);
 
     return buffer_size;
 }
@@ -190,11 +171,4 @@ void error_check(char *file, uint64_t line)
     printk("HALTING SYSTEM...");
 
     while (true);
-}
-
-uint64_t rdtsc(void)
-{
-    uint32_t low, high;
-    asm volatile("rdtsc":"=a"(low),"=d"(high));
-    return ((uint64_t)high << 32) | low;
 }

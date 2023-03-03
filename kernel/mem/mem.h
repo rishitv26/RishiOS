@@ -41,6 +41,9 @@ typedef PD* PDPTR;
 void init_mem(struct freemem *memory_map);
 void *kalloc(void);
 void kfree(uint64_t v);
+void free_pages(uint64_t map, uint64_t vstart, uint64_t vend);
+void free_vm(uint64_t map);
+uint64_t setup_kvm(void);
 
 void init_kvm(void);
 void switch_vm(uint64_t map);

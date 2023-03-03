@@ -7,7 +7,6 @@ extern char end; // defined in linker script...
 static void free_region(uint64_t s, uint64_t e);
 static struct page free_memory; // our first page 'node'
 static uint64_t memory_end;
-uint64_t page_map;
 
 void init_mem(struct freemem *memory_map) // work on this...
 {
@@ -58,7 +57,7 @@ static void free_region(uint64_t s, uint64_t e)
 {
     for (uint64_t start = PAGE_UP(s); start + PAGE_SIZE <= e; start += PAGE_SIZE) // divide region into usable pages...
     {
-        if (s + PAGE_SIZE <= 0xffff800040000000)
+        if (start + PAGE_SIZE <= 0xffff800040000000)
         {
             kfree(start);  
         }
@@ -169,19 +168,109 @@ void switch_vm(uint64_t map)
     load_cr3(v2p(map));   
 }
 
-static void setup_kvm(void) // setup the new memory management system...
+uint64_t setup_kvm(void) // setup the new memory management system...
 {
-    page_map = (uint64_t)kalloc();
-    ASSERT(page_map != 0);
-
-    memset((void*)page_map, 0, PAGE_SIZE);        
-    enum bool status = map_pages(page_map, KERNEL_BASE, memory_end, v2p(KERNEL_BASE), PTE_P|PTE_W);
-    ASSERT(status == true);
+    uint64_t page_map = (uint64_t)kalloc();
+    if (page_map != 0) {
+        memset((void*)page_map, 0, PAGE_SIZE);        
+        if (!map_pages(page_map, KERNEL_BASE, memory_end, v2p(KERNEL_BASE), PTE_P|PTE_W))
+        {
+            free_vm(page_map);
+            page_map = 0;
+        }
+    };
+    return page_map;
 }
 
 void init_kvm(void) // init function for the management system
 {
-    setup_kvm();
+    uint64_t page_map = setup_kvm();
+    ASSERT(page_map != 0);
     switch_vm(page_map);
-    printk("memory manager is working now\n");
+    printk("[*] Successfully initialized memory manager...\n");
+}
+
+enum bool setup_uvm(uint64_t map, uint64_t start, int size)
+{
+    enum bool status = false;
+    void *page = kalloc();
+
+    if (!(page))
+    {
+        memset(page, 0, PAGE_SIZE);
+        map_pages(map, 0x400000, 0x400000 + PAGE_SIZE, v2p(page), PTE_P | PTE_W | PTE_U);
+        if (status == true) {
+            memcpy(page, (void*)start, size);
+        } else {
+            kfree((uint64_t)page);
+            free_vm(map);
+        }
+    }
+
+    return status;
+}
+
+void free_pages(uint64_t map, uint64_t vstart, uint64_t vend) // delete a specific page...
+{
+    unsigned int index;
+
+    ASSERT(vstart % PAGE_SIZE);
+    ASSERT(vend % PAGE_SIZE);
+
+    do {
+        PD pd = find_pdpt_entry(map, vstart, 0, 0);
+
+        if (pd)
+        {
+            index = (vstart >> 21) & 0x1ff;
+            if (pd[index] & PTE_P)
+            {
+                kfree(p2v(PTE_ADDR(pd[index])));
+                pd[index] = 0;
+            }
+
+            vstart += PAGE_SIZE;
+        }
+    } while (vstart + PAGE_SIZE <= vend);
+
+}
+
+static void free_pm14t(uint64_t map) { kfree(map); } // free's a page from hardware...
+
+static void free_pdt(uint64_t map)
+{
+    PDPTR *map_entry = (PDPTR*)map;
+
+    for (int i = 0; i < 512; i++) {
+        if ((uint64_t)map_entry[i] & PTE_P) {
+            PD *pdptr = (PD*)p2v(PDE_ADDR(map_entry[i]));
+            for (int j = 0; j < 512; j++) {
+                if ((uint64_t)pdptr[j] & PTE_P) {
+                    kfree(p2v(PDE_ADDR(pdptr[j])));
+                    pdptr[j] = 0;
+                }
+            }
+        }
+    }
+}
+
+static void free_pdpt(uint64_t map)
+{
+    PDPTR *map_entry = (PDPTR*)map;
+
+    for (int i = 0; i < 512; i++)
+    {
+        if ((uint64_t)map_entry[i] & PTE_P) {
+            kfree(p2v(PDE_ADDR(map_entry[i])));
+            map_entry[i] = 0;
+        }
+    }
+}
+
+void free_vm(uint64_t map)
+{
+    free_pages(map, 0x400000, 0x400000 + PAGE_SIZE);
+    free_pdt(map);
+    free_pdpt(map);
+    free_pm14t(map);
 }
