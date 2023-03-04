@@ -1,6 +1,7 @@
 ; [bits 64]
 ; [org 0x200000] ;; this is our kernel entry point...
 section .data
+[global tss]
 ;; functions and definitions -------------------------------------------------------->
 ; handler0: ;; all interupts will be implemented in C
 ;     push rax
@@ -265,7 +266,7 @@ kernelentry: ;; our lovely little kernel in its full glory!
     ; xor ax, ax
     ; mov ss, ax
     mov rsp, 0xffff800000200000 ; jump to kernel location...
-    call main
+    call kernel
     ; sti
 
 end:

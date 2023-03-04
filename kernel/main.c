@@ -4,7 +4,7 @@
 
 struct freemem MEM_MAP[50];
 
-void main(void)
+void kernel(void)
 {
     const char* welcome_mes = "[*] WELCOME TO RishiOS, initializing other computer processes...\n";
     printk("%s\n", welcome_mes);
