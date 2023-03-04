@@ -20,10 +20,12 @@ section .text
 [global vector19]
 [global vector32]
 [global vector39]
-[global eoi]
+[global eoi] ;; extra assembly definitions that will be usefull later on
 [global read_isr]
 [global load_idt]
 [global load_cr3]
+[global pstart]
+[global read_cr2]
 
 Trap:
     push rax
@@ -181,5 +183,13 @@ load_cr3:
     mov cr3, rax
     jmp return
 
+read_cr2:
+    mov rax, cr2
+
 return:
     ret
+
+pstart:
+    mov rsp, rdi
+    jmp TrapReturn
+    

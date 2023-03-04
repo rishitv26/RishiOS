@@ -59,6 +59,7 @@ void handler(struct TrapFrame *tf) // the one handler function, connecting all v
             break;
 
         default:
+            printk("[Error at %d at ring %d] errorcode %d; virtual address of error: %x; normal address of error: %x", tf->trapno, (tf->cs & 3), tf->errorcode, read_cr2(), tf->rip); // handle errors in other rings
             while (true);
     }
 }

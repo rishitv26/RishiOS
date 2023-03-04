@@ -177,7 +177,7 @@ tss: ;; this will be our new interrupt handler in ring 3...
 tsslen: equ $-tss
 
 section .text
-[extern main]
+[extern kernel]
 [global start]
 
 start:

@@ -195,11 +195,11 @@ enum bool setup_uvm(uint64_t map, uint64_t start, int size)
     enum bool status = false;
     void *page = kalloc();
 
-    if (!(page))
+    if (page != NULL)
     {
         memset(page, 0, PAGE_SIZE);
-        map_pages(map, 0x400000, 0x400000 + PAGE_SIZE, v2p(page), PTE_P | PTE_W | PTE_U);
-        if (status == true) {
+        status = map_pages(map, 0x400000, 0x400000 + PAGE_SIZE, v2p(page), PTE_P | PTE_W | PTE_U);
+        if (status) {
             memcpy(page, (void*)start, size);
         } else {
             kfree((uint64_t)page);
@@ -214,8 +214,8 @@ void free_pages(uint64_t map, uint64_t vstart, uint64_t vend) // delete a specif
 {
     unsigned int index;
 
-    ASSERT(vstart % PAGE_SIZE);
-    ASSERT(vend % PAGE_SIZE);
+    ASSERT(vstart % PAGE_SIZE == 0);
+    ASSERT(vend % PAGE_SIZE == 0);
 
     do {
         PD pd = find_pdpt_entry(map, vstart, 0, 0);

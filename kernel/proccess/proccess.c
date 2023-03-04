@@ -38,16 +38,16 @@ static void set_proccess_entry(struct Proccess *proc)
     proc->stack = (uint64_t)kalloc();
     ASSERT(proc->stack != 0);
 
-    memset((void*)proc->stack, 0, PAGE_SIZE);
+    memset((void*)proc->stack, 0, PAGE_SIZE);   
     stack_top = proc->stack + STACK_SIZE;
 
-    proc->tf = (struct  TrapFrame*)(stack_top - sizeof(struct TrapFrame));
-    proc->tf->cs = 0x10 | 3;
+    proc->tf = (struct TrapFrame*)(stack_top - sizeof(struct TrapFrame)); 
+    proc->tf->cs = 0x10|3;
     proc->tf->rip = 0x400000;
-    proc->tf->ss = 0x18 | 3;
+    proc->tf->ss = 0x18|3;
     proc->tf->rsp = 0x400000 + PAGE_SIZE;
     proc->tf->rflags = 0x202;
-
+    
     proc->page_map = setup_kvm();
     ASSERT(proc->page_map != 0);
     ASSERT(setup_uvm(proc->page_map, (uint64_t)first_proccess, PAGE_SIZE));
@@ -59,11 +59,18 @@ void init_proccess(void)
     ASSERT(proc == &proccess_table[0]);
 
     set_proccess_entry(proc);
-} // initializ's proccess's by spawning the first one.
+} // initializ's the first proccess by spawning the first one.
 
 void launch(void)
 {
     set_tss(&proccess_table[0]);
     switch_vm(proccess_table[0].page_map);
     pstart(proccess_table[0].tf);
-} // launch a proccess once its ready
+} // launch the first proccess once its ready
+
+// our first proccess that will spawn is usermode:
+void first_proccess(void)
+{
+    char *p = (char*)0xffff800000200020;
+    *p = 1;
+}

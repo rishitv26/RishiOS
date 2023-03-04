@@ -1,6 +1,7 @@
 #include "lib/head.h"
 #include "interrupt/inter.h"
 #include "mem/mem.h"
+#include "proccess/proccess.h"
 
 struct freemem MEM_MAP[50];
 
@@ -11,5 +12,10 @@ void kernel(void)
     
     init_idt(); // initialize interrupts...
     init_mem(MEM_MAP); // initialize memory map...
+
+    printk("Spawning first proccess...\n");
+    init_proccess(); 
+    launch();
+
     // end of kernel
 }
