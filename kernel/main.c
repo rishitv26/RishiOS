@@ -14,7 +14,7 @@ void kernel(void)
     init_mem(MEM_MAP); // initialize memory map...
 
     printk("Spawning first proccess...\n");
-    init_proccess(); 
+    init_proccess();
     launch();
 
     // end of kernel
