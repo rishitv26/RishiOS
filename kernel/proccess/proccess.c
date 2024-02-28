@@ -59,12 +59,13 @@ void init_proccess(void)
     ASSERT(proc == &proccess_table[0]);
 
     set_proccess_entry(proc);
-} // initializ's the first proccess by spawning the first one.
+} // initialize's the first proccess by spawning the first one.
 
 void launch(void)
 {
     set_tss(&proccess_table[0]);
     switch_vm(proccess_table[0].page_map);
+    printk("Label Trap in trap.asm is the issue...");
     pstart(proccess_table[0].tf);
 } // launch the first proccess once its ready
 
