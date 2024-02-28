@@ -68,7 +68,7 @@ TrapReturn:
     pop	rax       
 
     add rsp,16
-    ;jmp $
+    jmp $
     iretq ; goes nuts, please help...
 
 vector0:
