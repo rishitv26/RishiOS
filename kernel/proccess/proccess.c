@@ -65,7 +65,6 @@ void launch(void)
 {
     set_tss(&proccess_table[0]);
     switch_vm(proccess_table[0].page_map);
-    printk("Label Trap in trap.asm is the issue...");
     pstart(proccess_table[0].tf);
 } // launch the first proccess once its ready
 

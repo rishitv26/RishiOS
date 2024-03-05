@@ -1,3 +1,4 @@
+@ECHO off
 cls
 wsl.exe sh compile.sh
 cd .. 

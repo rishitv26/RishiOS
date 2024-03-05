@@ -44,8 +44,8 @@ Trap:
     push r14
     push r15
 
-    inc byte[0xb8090]
-    mov byte[0xb8091],0xe
+    ; inc byte[0xb8090] ;; OMG im an Idiot, forgor to remove test code.
+    ; mov byte[0xb8091],0xe
 
     mov rdi,rsp
     call handler
@@ -65,11 +65,10 @@ TrapReturn:
     pop	rdx
     pop	rcx
     pop	rbx
-    pop	rax       
+    pop	rax      
 
     add rsp,16
-    jmp $
-    iretq ; goes nuts, please help...
+    iretq
 
 vector0:
     push 0
@@ -182,12 +181,10 @@ load_idt:
 load_cr3:
     mov rax, rdi
     mov cr3, rax
-    jmp return
+    ret
 
 read_cr2:
     mov rax, cr2
-
-return:
     ret
 
 pstart:
