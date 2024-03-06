@@ -1,5 +1,6 @@
 #include "inter.h" 
 #include "../lib/head.h"
+#include "../lib/syscall.h"
 
 static struct idtptr idt_pointer; // create an idt pointer
 static struct idt_entry vectors[256]; // create all of the vectors seperatly
@@ -36,6 +37,7 @@ void init_idt(void)
     init_idt_entry(19, &vectors[19],(uint64_t)vector19,0x8e);
     init_idt_entry(32, &vectors[32],(uint64_t)vector32,0x8e);
     init_idt_entry(39, &vectors[39],(uint64_t)vector39,0x8e);
+    init_idt_entry(0x80, &vectors[0x80], (uint64_t)sysint, 0xee); // adding the system interupt.
 
     idt_pointer.limit = sizeof(vectors) - 1;
     idt_pointer.addr = (uint64_t)vectors;
@@ -57,9 +59,16 @@ void handler(struct TrapFrame *tf) // the one handler function, connecting all v
                 eoi();
             }
             break;
-
+        
+        case 0x80: // the system call...
+            system_call(tf);
+            break;
         default:
             printk("\n[Error at %d at ring %d] errorcode %d; virtual address of error: %x; normal address of error: %x", tf->trapno, (tf->cs & 3), tf->errorcode, read_cr2(), tf->rip); // handle errors in other rings
             while (true);
+    }
+
+    if (tf->trapno == 32) {
+        yield(); // give up CPU resources to start next proccess...
     }
 }

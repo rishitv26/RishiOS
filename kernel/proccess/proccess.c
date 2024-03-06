@@ -1,12 +1,18 @@
+#include "stdbool.h"
 #include "proccess.h"
 #include "../interrupt/inter.h"
 #include "../mem/mem.h"
 #include "../lib/head.h"
 
 extern struct TSS tss; // the global TSS struct
+extern void swap(uint64_t*, uint64_t);
 static struct Proccess proccess_table[NUM_PROC]; // table containing all proccesses
+static struct ProccessControl pc;
 static int pid_num = 1;
-void first_proccess(void); // test function for the proccess
+
+static struct ProccessControl* get_pc() {
+    return &pc;
+}
 
 static void set_tss(struct Proccess *proc)
 {
@@ -41,6 +47,9 @@ static void set_proccess_entry(struct Proccess *proc)
     memset((void*)proc->stack, 0, PAGE_SIZE);   
     stack_top = proc->stack + STACK_SIZE;
 
+    proc->context = stack_top - sizeof(struct TrapFrame) - 7*8;
+    *(uint64_t*)(proc->context + 6*8) = (uint64_t)TrapReturn;
+
     proc->tf = (struct TrapFrame*)(stack_top - sizeof(struct TrapFrame)); 
     proc->tf->cs = 0x10|3;
     proc->tf->rip = 0x400000;
@@ -50,27 +59,115 @@ static void set_proccess_entry(struct Proccess *proc)
     
     proc->page_map = setup_kvm();
     ASSERT(proc->page_map != 0);
-    ASSERT(setup_uvm(proc->page_map, (uint64_t)first_proccess, PAGE_SIZE));
+    ASSERT(setup_uvm(proc->page_map, (uint64_t)p2v(0x20000), 5120));
+    proc->state = PROC_READY;
 } // set a proccess up so that it is ready to be launched.
 
 void init_proccess(void)
 {
-    struct Proccess *proc = find_unused_proccess();
-    ASSERT(proc == &proccess_table[0]);
+    struct ProccessControl *proccess_control;
+    struct Proccess *proc;
+    struct HeadList *list;
+    uint64_t addr[2] = {0x20000, 0x30000}; // all programs (and thir addresses)
 
-    set_proccess_entry(proc);
+    proccess_control = get_pc();
+    list = &proccess_control->ready_list;
+
+    for (int i = 0; i < 2; ++i) {
+        proc = find_unused_proccess();
+        set_proccess_entry(proc, addr[i]);
+        append_list_tail(list, (struct List*)proc);
+    }
 } // initialize's the first proccess by spawning the first one.
 
 void launch(void)
 {
-    set_tss(&proccess_table[0]);
-    switch_vm(proccess_table[0].page_map);
-    pstart(proccess_table[0].tf);
+    struct ProccessControl *proccess_control;
+    struct Proccess *proccess;
+
+    proccess_control = get_pc();
+    proccess = (struct Proccess*)remove_list_head(&proccess_control->ready_list);
+    proccess->state = PROC_RUNNING;
+    proccess_control->current_proccess = proccess;
+
+    set_tss(proccess);
+    switch_vm(proccess->page_map);
+    pstart(proccess->tf);
 } // launch the first proccess once its ready
 
-// our first proccess that will spawn is usermode:
-void first_proccess(void)
-{
-    char *p = (char*)0xffff800000200020;
-    *p = 1;
+static void switch_proccess(struct Proccess* prev, struct Proccess* current) {
+    set_tss(current);
+    switch_vm(current->page_map);
+    swap(&prev->context, current->context);
+}
+
+static void schedule(void) {
+    struct Proccess *prev_proc;
+    struct Proccess *current_proc;
+    struct ProccessControl *proccess_control;
+    struct HeadList* list;
+
+    proccess_control = get_pc();
+    prev_proc = proccess_control->current_proccess;
+    list = &proccess_control->ready_list;
+    ASSERT(!is_list_empty(list));
+
+    current_proc = (struct Proccess*)remove_list_head(list);
+    current_proc->state = PROC_RUNNING;
+    proccess_control->current_proccess = current_proc;
+
+    switch_proccess(prev_proc, current_proc);
+}
+
+void yield(void) {
+    struct ProccessControl *proccess_controll;
+    struct Proccess *proccess;
+    struct HeadList *list;
+
+    proccess_controll = get_pc();
+    list = &proccess_controll->ready_list;
+
+    if (is_list_empty(list)) {
+        return;
+    }
+    
+    proccess = proccess_controll->current_proccess;
+    proccess->state = PROC_READY;
+    append_list_tail(list, (struct List*)proccess);
+    schedule();
+}
+
+// ============================================================================================== proccess linked list stuff:
+
+void append_list_tail(struct HeadList* list, struct List* item) {
+    item->next = NULL;
+
+    if (is_list_empty(list)) {
+        list->next = item;
+        list->tail = item;
+    } else {
+        list->tail->next = item;
+        list->tail = item;
+    }
+}
+
+struct List* remove_list_head(struct HeadList *list) {
+    struct List *item;
+
+    if (is_list_empty(list)) {
+        return NULL;
+    }
+
+    item = list->next;
+    list->next = item->next;
+
+    if (list->next == NULL) {
+        list->tail = NULL;
+    }
+
+    return item;
+}
+
+bool is_list_empty(struct HeadList *list) {
+    return list->next == NULL;
 }

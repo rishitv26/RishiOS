@@ -40,6 +40,21 @@ loadkernel: ;; load our kernel:
     jc loaderror
     mov dl, [driveid]
 
+loaduser: ;; load our user:
+    mov si, readpack 
+    mov word[si], 0x10 
+    mov word[si + 2], 10 
+    mov word[si + 4], 0
+    mov word[si + 6], 0x2000 ; MIGHT BE AN EXAMPLE
+    mov dword[si + 8], 106
+    mov dword[si + 0xc], 0
+    jc loaderror ; if it fails, print error and halt.
+    mov dl, [driveid]
+    mov ah, 0x42
+    int 0x13
+    jc loaderror
+    mov dl, [driveid]
+
 meminfo: ; See what sections of memory are usable for us.
     mov eax, 0xe820
     mov edx, 0x534d4150

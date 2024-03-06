@@ -1,3 +1,10 @@
 {
-    "C_Cpp.errorSquiggles": "enabled"
+    "C_Cpp.errorSquiggles": "enabled",
+    "files.associations": {
+        "head.h": "c",
+        "stdint.h": "c",
+        "stdarg.h": "c",
+        "stdio.h": "c",
+        "stdbool.h": "c"
+    }
 }

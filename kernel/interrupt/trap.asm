@@ -1,5 +1,6 @@
 section .text
 [extern handler] ;; these are all of the hard defined definitions for each interrupt.
+[global TrapReturn]
 [global vector0]
 [global vector1]
 [global vector2]
@@ -20,12 +21,14 @@ section .text
 [global vector19]
 [global vector32]
 [global vector39]
+[global sysint]
 [global eoi] ;; extra assembly definitions that will be usefull later on
 [global read_isr]
 [global load_idt]
 [global load_cr3]
 [global pstart]
 [global read_cr2]
+[global swap]
 
 Trap:
     push rax
@@ -71,8 +74,8 @@ TrapReturn:
     iretq
 
 vector0:
-    push 0
-    push 0
+    push 0 ; means no error code
+    push 0 ; means interrupt number 0
     jmp Trap
 
 vector1:
@@ -163,6 +166,11 @@ vector39:
     push 39
     jmp Trap
 
+sysint:
+    push 0
+    push 0x80
+    jmp Trap
+
 eoi:
     mov al,0x20
     out 0x20,al
@@ -190,4 +198,23 @@ read_cr2:
 pstart:
     mov rsp, rdi
     jmp TrapReturn
-    
+
+swap: ; does the actuall "swaping" of proccesses
+    push rbx
+    push rbp
+    push r12
+    push r13
+    push r14
+    push r15
+
+    mov [rdi], rsp
+    mov rsp, rsi
+
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop rbp
+    pop rbx
+
+    ret

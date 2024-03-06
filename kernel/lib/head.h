@@ -4,8 +4,8 @@
 #include "stdint.h"
 #include "stdarg.h"
 
-static const unsigned int SCREEN_WIDTH  = 160;
-static const unsigned int SCREEN_HEIGHT = 25;
+#define SCREEN_WIDTH 160
+#define SCREEN_HEIGHT 25
 static char* VID_MEM = (char*)0xb8000;
 static enum bool {
     true = 1,
@@ -31,6 +31,10 @@ struct ScreenBuffer
     int column;
     int row;
 };
+// used to print by KERNEL and bellow
 int printk(const char* format, ...);
+int printk_color(const char *format, char color, ...);
+// used to print by USER mode.
+void write_screen(const char *buffer, int size, char color);
 
 #endif // HEAD

@@ -3,10 +3,23 @@
 
 #include "../interrupt/inter.h"
 
+struct List {
+    struct List *next;
+};
+struct HeadList {
+    struct List* next;
+    struct List* tail;
+};
+void append_list_tail(struct HeadList* list, struct List* item);
+struct List* remove_list_head(struct HeadList *list); 
+bool is_list_empty(struct HeadList *list);
+
 // the proccess properties:
 struct Proccess {
+    struct List *next;
     int pid;
     int state;
+    uint64_t context;
     uint64_t page_map;
     uint64_t stack;
     struct TrapFrame *tf;
@@ -34,13 +47,23 @@ struct TSS {
     uint16_t iopb;
 } __attribute__((packed));
 
+struct ProccessControl
+{
+    struct Proccess *current_proccess;
+    struct HeadList ready_list;
+};
+
+
 #define STACK_SIZE (2*1024*1024)
 #define NUM_PROC 10 // how many proccesses can be there in our system.
 #define PROC_UNUSED 0
 #define PROC_INIT 1
+#define PROC_READY 2
+#define PROC_RUNNING 3
 
 void init_proccess(void); // initialize proccess
 void launch(void); // launch a proccess
 void pstart(struct TrapFrame *tf); // start initailization
+void yield(void); // gives up CPU resources for new proccess.
 
 #endif // PROCCESS_H

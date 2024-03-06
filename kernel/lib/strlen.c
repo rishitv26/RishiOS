@@ -73,8 +73,9 @@ static int read_string(char *buffer, int position, const char *string)  // copie
     return index;
 }
 
-static void write_screen(const char *buffer, int size, struct ScreenBuffer *sb, char color) // writes the character to the string
+void write_screen(const char *buffer, int size, char color) // writes the character to the string
 {
+    struct ScreenBuffer *sb = &screen_buffer;
     int column = sb->column;
     int row = sb->row;
 
@@ -158,7 +159,59 @@ int printk(const char *format, ...) // the big print function with everything...
         if (x % (SCREEN_WIDTH / 2) == 0) { y += 1; x = 0; }   
     }
 
-    write_screen(buffer, buffer_size, &screen_buffer, 0xf); // 0xf is color, white
+    write_screen(buffer, buffer_size, 0xf); // 0xf is color, white
+    va_end(args);
+
+    return buffer_size;
+}
+
+int printk_color(const char *format, char color, ...) // the big print function with everything... returns total size of output
+{
+    int x, y = 0;
+    char buffer[SCREEN_WIDTH / 2 * SCREEN_HEIGHT];
+    int buffer_size = 0;
+    int64_t integer = 0;
+    char *string = 0;
+    va_list args;
+
+    va_start(args,format);
+
+    for (int i = 0; format[i] != '\0'; i++) {
+        if (format[i] != '%') { // normal string
+            buffer[buffer_size++] = format[i];
+        }
+        else {
+            switch (format[++i]) {
+                case 'x': // hex
+                    integer = va_arg(args, int64_t);
+                    buffer_size += hex_to_string(buffer, buffer_size, (uint64_t)integer);
+                    break;
+
+                case 'u': // unsigned int
+                    integer = va_arg(args, int64_t);
+                    buffer_size += udecimal_to_string(buffer, buffer_size, (uint64_t)integer);
+                    break;
+
+                case 'd': // int
+                    integer = va_arg(args, int64_t);
+                    buffer_size += decimal_to_string(buffer, buffer_size, integer);
+                    break;
+
+                case 's': // string
+                    string = va_arg(args, char*);
+                    buffer_size += read_string(buffer, buffer_size, string);
+                    break;
+
+                default: // this is just a percent as a normal char
+                    buffer[buffer_size++] = '%';
+                    i--;
+            }
+        }
+        x++;
+        if (x % (SCREEN_WIDTH / 2) == 0) { y += 1; x = 0; }   
+    }
+
+    write_screen(buffer, buffer_size, color); // 0xf is color, white
     va_end(args);
 
     return buffer_size;
