@@ -136,6 +136,38 @@ void yield(void) {
     schedule();
 }
 
+// puts a proccess into sleep mode, by putting in wait list and not readylist
+void sleep(int wait) {
+    struct ProccessControl *proccess_control;
+    struct Proccess *proccess;
+
+    proccess_control = get_pc();
+    proccess = proccess_control->current_proccess;
+    proccess->state = PROC_SLEEP;
+    proccess->wait = wait;
+
+    append_list_tail(&proccess_control->wait_list, (struct List*)proccess);
+    schedule();
+}
+
+void wake_up(int wait) {
+    struct ProccessControl *proccess_control;
+    struct Proccess *proccess;
+    struct HeadList *ready_list;
+    struct HeadList *wait_list;
+
+    proccess_control = get_pc();
+    ready_list = &proccess_control->ready_list;
+    wait_list = &proccess_control->wait_list;
+    proccess = (struct Proccess*)remove_list(wait_list, wait);
+
+    while (proccess != NULL) {
+        proccess->state = PROC_READY;
+        append_list_tail(ready_list, (struct List*)proccess);
+        proccess = (struct Proccess*)remove_list(wait_list, wait);
+    }
+}
+
 // ============================================================================================== proccess linked list stuff:
 
 void append_list_tail(struct HeadList* list, struct List* item) {
@@ -169,4 +201,30 @@ struct List* remove_list_head(struct HeadList *list) {
 
 bool is_list_empty(struct HeadList *list) {
     return list->next == NULL;
+}
+
+struct List* remove_list(struct HeadList* list, int wait) {
+    struct List *current = list->next;
+    struct List *prev = (struct List*)list;
+    struct List *item = NULL;
+
+    while (current != NULL) {
+        // if found task with same wait, bring it back:
+        if (((struct Proccess*)current)->wait == wait) {
+            prev->next = current->next;
+            item = current;
+
+            if (list->next == NULL) {
+                list->tail = NULL;
+            } else if (current->next == NULL) {
+                list->tail = prev;
+            }
+            break;
+        }
+
+        prev = current;
+        current = current->next;
+    }
+
+    return item;
 }

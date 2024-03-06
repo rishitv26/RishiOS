@@ -3,6 +3,7 @@
 #include "stdint.h"
 
 extern int writeu(char* buffer, int buffer_size); // Seperate function that prints uing system call.
+extern void sleepu(uint64_t ticks);
 
 static int udecimal_to_string(char *buffer, int position, uint64_t digits) // convert unsigned int to string...
 {
@@ -125,3 +126,7 @@ int printf(const char *format, ...) // the big print function with everything...
     return buffer_size;
 }
 
+// 100 ticks is one second
+void sleep(uint64_t milliseconds) {
+    sleepu(100);
+}

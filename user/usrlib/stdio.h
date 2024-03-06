@@ -10,4 +10,7 @@
 // io functions:
 int printf(const char *format, ...);
 
+// timing functions:
+void sleep(uint64_t milliseconds);
+
 #endif // _STDIO_H

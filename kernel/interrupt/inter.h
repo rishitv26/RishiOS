@@ -72,5 +72,7 @@ void eoi(void);
 void load_idt(struct IdtPtr *ptr);
 unsigned char read_isr(void);
 void TrapReturn(void);
+// timer stuff:
+uint64_t get_ticks();
 
 #endif // INTER

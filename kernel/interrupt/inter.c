@@ -1,9 +1,20 @@
 #include "inter.h" 
 #include "../lib/head.h"
 #include "../lib/syscall.h"
+#include "../proccess/proccess.h"
 
 static struct idtptr idt_pointer; // create an idt pointer
 static struct idt_entry vectors[256]; // create all of the vectors seperatly
+static uint64_t ticks;
+
+uint64_t get_ticks() {
+    return ticks;
+}
+
+static void timer_handler() {
+    ticks++;
+    wake_up(-1);
+}
 
 static void init_idt_entry(unsigned int vectnum, struct idt_entry *entry, uint64_t addr, uint8_t attribute)
 {
@@ -50,6 +61,7 @@ void handler(struct TrapFrame *tf) // the one handler function, connecting all v
     unsigned char isr_value;
     switch (tf->trapno) {
         case 32:
+            timer_handler();
             eoi();
             break;
             

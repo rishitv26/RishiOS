@@ -3,8 +3,12 @@ cd ../user # compile all user items
 # generate user library:
 nasm -f elf64 -o ../bin/bin/user/syscall.o usrlib/syscall.asm &&
 gcc -std=c99 -mcmodel=large -ffreestanding -fno-stack-protector -mno-red-zone -c usrlib/stdio.c -o ../bin/bin/user/stdio.o &&
+gcc -std=c99 -mcmodel=large -ffreestanding -fno-stack-protector -mno-red-zone -c usrlib/stdstr.c -o ../bin/bin/user/stdstr.o &&
 # assemble library into static file:
-ar -rcs ../bin/lib/usrlib.a ../bin/bin/user/syscall.o ../bin/bin/user/stdio.o &&
+ar -rcs ../bin/lib/usrlib.a\
+    ../bin/bin/user/syscall.o\
+    ../bin/bin/user/stdio.o\
+    ../bin/bin/user/stdstr.o &&
 
 # compile rest of the files:
 nasm -f elf64 -o ../bin/bin/user/start.o start.asm &&

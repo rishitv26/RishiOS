@@ -1,12 +1,10 @@
-#include "usrlib/stdio.h"
+#include "usrlib/lib.h"
 
 // basic user program that runs in user mode...
 int main(void) {
-    int64_t counter = 0;
-    while (true) {
-        if (counter % 100000 == 0)
-            printf("proccess1: %d\n", counter);
-        counter++;
-    }
+    const char* string = "hello";
+    size_t size = strlen(string);
+    printf("The size of: \"%s\" is %d\n", string, size);
+    
     return 0;
 }

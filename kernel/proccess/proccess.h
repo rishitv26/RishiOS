@@ -20,6 +20,7 @@ struct Proccess {
     struct List *next;
     int pid;
     int state;
+    int wait;
     uint64_t context;
     uint64_t page_map;
     uint64_t stack;
@@ -52,6 +53,7 @@ struct ProccessControl
 {
     struct Proccess *current_proccess;
     struct HeadList ready_list;
+    struct HeadList wait_list;
 };
 
 
@@ -61,11 +63,16 @@ struct ProccessControl
 #define PROC_INIT 1
 #define PROC_READY 2
 #define PROC_RUNNING 3
+#define PROC_SLEEP 4
 
 void init_proccess(void); // initialize proccess
 void launch(void); // launch a proccess
 void pstart(struct TrapFrame *tf); // start initailization
 void yield(void); // gives up CPU resources for new proccess.
 void swap(uint64_t *prev, uint64_t next); // swaps proccesses
+struct List* remove_list(struct HeadList* list, int wait);
+
+void sleep(int wait);
+void wake_up(int wait);
 
 #endif // PROCCESS_H
