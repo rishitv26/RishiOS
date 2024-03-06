@@ -216,5 +216,4 @@ swap: ; does the actuall "swaping" of proccesses
     pop r12
     pop rbp
     pop rbx
-
     ret

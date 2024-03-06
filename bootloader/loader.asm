@@ -39,7 +39,7 @@ loadkernel: ;; load our kernel:
     int 0x13
     jc loaderror
     mov dl, [driveid]
-
+;; =============================================== LOAD ALL USERS =================================:
 loaduser: ;; load our user:
     mov si, readpack 
     mov word[si], 0x10 
@@ -54,6 +54,22 @@ loaduser: ;; load our user:
     int 0x13
     jc loaderror
     mov dl, [driveid]
+
+loaduser2: ;; load our user:
+    mov si, readpack 
+    mov word[si], 0x10 
+    mov word[si + 2], 10 
+    mov word[si + 4], 0
+    mov word[si + 6], 0x3000 ; MIGHT BE AN EXAMPLE
+    mov dword[si + 8], 116
+    mov dword[si + 0xc], 0
+    jc loaderror ; if it fails, print error and halt.
+    mov dl, [driveid]
+    mov ah, 0x42
+    int 0x13
+    jc loaderror
+    mov dl, [driveid]
+;; =============================================== LOAD REST =================================:
 
 meminfo: ; See what sections of memory are usable for us.
     mov eax, 0xe820

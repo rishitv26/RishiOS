@@ -2,6 +2,7 @@
 #define MEM
 
 #include "stdint.h"
+#include "stdbool.h"
 
 struct e820 // a struct to represent each block of free memory...
 {
@@ -47,7 +48,7 @@ uint64_t setup_kvm(void);
 
 void init_kvm(void);
 void switch_vm(uint64_t map);
-enum bool map_pages(uint64_t map, uint64_t v, uint64_t e, uint64_t pa, uint32_t attribute);
+bool map_pages(uint64_t map, uint64_t v, uint64_t e, uint64_t pa, uint32_t attribute);
 void load_cr3(uint64_t map);
 
 #endif // MEM

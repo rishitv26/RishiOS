@@ -5,7 +5,6 @@
 #include "../lib/head.h"
 
 extern struct TSS tss; // the global TSS struct
-extern void swap(uint64_t*, uint64_t);
 static struct Proccess proccess_table[NUM_PROC]; // table containing all proccesses
 static struct ProccessControl pc;
 static int pid_num = 1;
@@ -34,7 +33,7 @@ static struct Proccess* find_unused_proccess(void)
     return proccess;
 } // looks through the proccess table and creates a new proccess if there is space.
 
-static void set_proccess_entry(struct Proccess *proc)
+static void set_proccess_entry(struct Proccess *proc, uint64_t addr)
 {
     uint64_t stack_top;
 
@@ -59,7 +58,7 @@ static void set_proccess_entry(struct Proccess *proc)
     
     proc->page_map = setup_kvm();
     ASSERT(proc->page_map != 0);
-    ASSERT(setup_uvm(proc->page_map, (uint64_t)p2v(0x20000), 5120));
+    ASSERT(setup_uvm(proc->page_map, (uint64_t)p2v(addr), 5120));
     proc->state = PROC_READY;
 } // set a proccess up so that it is ready to be launched.
 
@@ -68,7 +67,7 @@ void init_proccess(void)
     struct ProccessControl *proccess_control;
     struct Proccess *proc;
     struct HeadList *list;
-    uint64_t addr[2] = {0x20000, 0x30000}; // all programs (and thir addresses)
+    uint64_t addr[] = {0x20000, 0x30000}; // all programs (and thir addresses)
 
     proccess_control = get_pc();
     list = &proccess_control->ready_list;

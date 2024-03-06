@@ -134,7 +134,7 @@ static PD find_pdpt_entry(uint64_t map, uint64_t v, int alloc, uint32_t attribut
     return pd;
 }
 
-enum bool map_pages(uint64_t map, uint64_t v, uint64_t e, uint64_t pa, uint32_t attribute) // map the pages into a convenient map...
+bool map_pages(uint64_t map, uint64_t v, uint64_t e, uint64_t pa, uint32_t attribute) // map the pages into a convenient map...
 {
     uint64_t vstart = PAGE_DOWN(v);
     uint64_t vend = PAGE_UP(e);
@@ -190,9 +190,9 @@ void init_kvm(void) // init function for the management system
     printk("[*] Successfully initialized memory manager...\n");
 }
 
-enum bool setup_uvm(uint64_t map, uint64_t start, int size)
+bool setup_uvm(uint64_t map, uint64_t start, int size)
 {
-    enum bool status = false;
+    bool status = false;
     void *page = kalloc();
 
     if (page != NULL)

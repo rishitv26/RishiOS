@@ -18,6 +18,12 @@ ld -nostdlib -T scripts/link_user.lds -o bin/bin/user/usr\
     bin/bin/user/start.o\
     bin/bin/user/main.o\
     bin/lib/usrlib.a &&
-objcopy -O binary bin/bin/user/usr bin/bin/user.bin
+objcopy -O binary bin/bin/user/usr bin/bin/user.bin &&
+
+ld -nostdlib -T scripts/link_user.lds -o bin/bin/user/usr2\
+    bin/bin/user/start2.o\
+    bin/bin/user/main2.o\
+    bin/lib/usrlib.a &&
+objcopy -O binary bin/bin/user/usr2 bin/bin/user2.bin
 
 cd scripts # done...

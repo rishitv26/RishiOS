@@ -3,14 +3,11 @@
 
 #include "stdint.h"
 #include "stdarg.h"
+#include "stdbool.h"
 
 #define SCREEN_WIDTH 160
 #define SCREEN_HEIGHT 25
 static char* VID_MEM = (char*)0xb8000;
-static enum bool {
-    true = 1,
-    false = 0
-};
 #define NULL 0
 
 // debug functions:

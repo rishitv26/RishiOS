@@ -2,6 +2,7 @@
 #define PROCCESS_H
 
 #include "../interrupt/inter.h"
+#include "stdbool.h"
 
 struct List {
     struct List *next;
@@ -65,5 +66,6 @@ void init_proccess(void); // initialize proccess
 void launch(void); // launch a proccess
 void pstart(struct TrapFrame *tf); // start initailization
 void yield(void); // gives up CPU resources for new proccess.
+void swap(uint64_t *prev, uint64_t next); // swaps proccesses
 
 #endif // PROCCESS_H
