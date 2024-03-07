@@ -1,5 +1,6 @@
 #include "usrlib/stdio.h"
 
+#define DELAY 10000000
 // basic user program that runs in user mode...
 int main(void) {
     // int64_t counter = 0;
@@ -10,9 +11,9 @@ int main(void) {
     // }
     int counter = 0;
     while (true) {
-        printf("proccess2 has %d secs.\n", counter);
+        printf("proccess2 has %d ticks.\n", counter * DELAY);
         counter++;
-        sleep(1000);
+        sleep(DELAY);
     }
     return 0;
 }

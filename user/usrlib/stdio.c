@@ -127,6 +127,6 @@ int printf(const char *format, ...) // the big print function with everything...
 }
 
 // 100 ticks is one second
-void sleep(uint64_t milliseconds) {
-    sleepu(100);
+void sleep(uint64_t ticks) {
+    sleepu(ticks);
 }
