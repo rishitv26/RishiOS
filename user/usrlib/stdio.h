@@ -11,6 +11,6 @@
 int printf(const char *format, ...);
 
 // timing functions:
-void sleep(uint64_t milliseconds);
+void sleepu(uint64_t ticks);
 
 #endif // _STDIO_H

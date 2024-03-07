@@ -1,19 +1,13 @@
 #include "usrlib/stdio.h"
 
-#define DELAY 10000000
+#define DELAY 4000000 // hertz of the cpu
 // basic user program that runs in user mode...
 int main(void) {
-    // int64_t counter = 0;
-    // while (true) {
-    //     if (counter % 100000 == 0)
-    //         printlnf("proccess2: %d", counter);
-    //     counter++;
-    // }
     int counter = 0;
     while (true) {
-        printf("proccess2 has %d ticks.\n", counter * DELAY);
+        for (int i = 0; i < 400000; ++i) sleepu(DELAY);
+        printf("proccess2 has %d ticks.\n", counter);
         counter++;
-        sleep(DELAY);
     }
     return 0;
 }
