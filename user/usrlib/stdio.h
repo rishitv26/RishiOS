@@ -9,7 +9,7 @@
 
 // io functions:
 int printf(const char *format, ...);
-//void clearu();
+void clearu();
 
 // timing functions:
 void sleepu(uint64_t ticks);

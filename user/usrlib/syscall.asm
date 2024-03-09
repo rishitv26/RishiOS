@@ -5,6 +5,7 @@ section .text
 [global sleepu]
 [global exitu]
 [global cleanup]
+[global clearu]
 
 writeu:
     sub rsp,16 ; setup arguments for interrupt to be called.
@@ -41,6 +42,13 @@ exitu:
 
 cleanup:
     mov eax, 3
+    mov rdi, 0
+
+    int 0x80
+    ret
+
+clearu:
+    mov eax, 4
     mov rdi, 0
 
     int 0x80

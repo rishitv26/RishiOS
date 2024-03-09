@@ -3,6 +3,8 @@
 // basic user program that runs in user mode...
 int main(void) {
     printf("type something here:\n");
-    while (true) sleepu(100);
+    sleepu(1000);
+    clearu();
+    printf("type whatever your little heart desires.\n");
     return 0;
 }
