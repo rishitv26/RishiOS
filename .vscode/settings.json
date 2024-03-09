@@ -8,6 +8,7 @@
         "stdbool.h": "c",
         "lib.h": "c",
         "proccess.h": "c",
-        "inter.h": "c"
+        "inter.h": "c",
+        "keyboard.h": "c"
     }
 }

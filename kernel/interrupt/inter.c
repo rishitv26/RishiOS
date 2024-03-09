@@ -2,6 +2,7 @@
 #include "../lib/head.h"
 #include "../syscalls/syscall.h"
 #include "../proccess/proccess.h"
+#include "../keyboard/keyboard.h"
 
 static struct idtptr idt_pointer; // create an idt pointer
 static struct idt_entry vectors[256]; // create all of the vectors seperatly
@@ -47,6 +48,7 @@ void init_idt(void)
     init_idt_entry(18, &vectors[18],(uint64_t)vector18,0x8e);
     init_idt_entry(19, &vectors[19],(uint64_t)vector19,0x8e);
     init_idt_entry(32, &vectors[32],(uint64_t)vector32,0x8e);
+    init_idt_entry(33, &vectors[33],(uint64_t)vector33,0x8e);
     init_idt_entry(39, &vectors[39],(uint64_t)vector39,0x8e);
     init_idt_entry(0x80, &vectors[0x80], (uint64_t)sysint, 0xee); // adding the system interupt.
 
@@ -62,9 +64,14 @@ void handler(struct TrapFrame *tf) // the one handler function, connecting all v
     switch (tf->trapno) {
         case 32:
             timer_handler();
+            eoi(); // end of interupt.
+            break;
+        
+        case 33:
+            keyboard_handler();
             eoi();
             break;
-            
+
         case 39:
             isr_value = read_isr();
             if ((isr_value&(1<<7)) != 0) {

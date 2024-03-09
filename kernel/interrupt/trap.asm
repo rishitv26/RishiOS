@@ -20,6 +20,7 @@ section .text
 [global vector18]
 [global vector19]
 [global vector32]
+[global vector33]
 [global vector39]
 [global sysint]
 [global eoi] ;; extra assembly definitions that will be usefull later on
@@ -29,6 +30,7 @@ section .text
 [global pstart]
 [global read_cr2]
 [global swap]
+[global in_byte]
 
 Trap:
     push rax
@@ -161,6 +163,11 @@ vector32:
     push 32
     jmp Trap
 
+vector33:
+    push 0
+    push 33
+    jmp Trap
+
 vector39:
     push 0
     push 39
@@ -216,4 +223,9 @@ swap: ; does the actuall "swaping" of proccesses
     pop r12
     pop rbp
     pop rbx
+    ret
+
+in_byte: ; reads from register rdx
+    mov rdx, rdi
+    in al, dx
     ret

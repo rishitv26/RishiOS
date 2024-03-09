@@ -89,7 +89,17 @@ void write_screen(const char *buffer, int size, char color) // writes the charac
         if (buffer[i] == '\n') {
             column = 0;
             row++;
-        } 
+        } else if (buffer[i] == '\b') { // handle backspace...
+            if (column == 0 && row == 0) continue; // nothing to delete
+            if (column == 0) {
+                row--;
+                column = SCREEN_WIDTH / 2;
+            }
+
+            column -= 1;
+            sb->buffer[column*2 + row*SCREEN_WIDTH] = 0;
+            sb->buffer[column*2 + row*SCREEN_WIDTH + 1] = 0;
+        }
         else {
             sb->buffer[column * 2 + row * SCREEN_WIDTH] = buffer[i];
             sb->buffer[column * 2 + row * SCREEN_WIDTH + 1] = color;

@@ -14,6 +14,7 @@ gcc -std=c99 -mcmodel=large -ffreestanding -fno-stack-protector -mno-red-zone -c
 gcc -std=c99 -mcmodel=large -ffreestanding -fno-stack-protector -mno-red-zone -c mem/mem.c -o ../bin/bin/freemem.o &&
 gcc -std=c99 -mcmodel=large -ffreestanding -fno-stack-protector -mno-red-zone -c proccess/proccess.c -o ../bin/bin/proccess.o &&
 gcc -std=c99 -mcmodel=large -ffreestanding -fno-stack-protector -mno-red-zone -c syscalls/syscall.c -o ../bin/bin/syscall.o &&
+gcc -std=c99 -mcmodel=large -ffreestanding -fno-stack-protector -mno-red-zone -c keyboard/keyboard.c -o ../bin/bin/keyboard.o &&
 nasm -f elf64 -o ../bin/bin/lib.o lib/lib.asm &&
 nasm -f elf64 -o ../bin/bin/inta.o interrupt/trap.asm &&
 cd ..
@@ -28,7 +29,8 @@ ld -nostdlib -T scripts/link_kernel.lds -o bin/bin/kernel\
     bin/bin/lib.o\
     bin/bin/freemem.o\
     bin/bin/proccess.o\
-    bin/bin/syscall.o &&
+    bin/bin/syscall.o\
+    bin/bin/keyboard.o &&
 objcopy -O binary bin/bin/kernel bin/bin/kernel.bin &&
 
 # time to give birth to an operating system!
