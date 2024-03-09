@@ -3,6 +3,8 @@
 section .text
 [global writeu]
 [global sleepu]
+[global exitu]
+[global cleanup]
 
 writeu:
     sub rsp,16 ; setup arguments for interrupt to be called.
@@ -28,4 +30,18 @@ sleepu:
     int 0x80
 
     add rsp, 8 ; restore stack
+    ret
+
+exitu:
+    mov eax, 2 ; syscall index number
+    mov rdi, 0 ; no arguments passed
+
+    int 0x80
+    ret
+
+cleanup:
+    mov eax, 3
+    mov rdi, 0
+
+    int 0x80
     ret

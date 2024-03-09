@@ -33,5 +33,6 @@ int printk(const char* format, ...);
 int printk_color(const char *format, char color, ...);
 // used to print by USER mode.
 void write_screen(const char *buffer, int size, char color);
+void clear_screen();
 
 #endif // HEAD

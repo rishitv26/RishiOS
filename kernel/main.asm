@@ -241,7 +241,7 @@ intpic:   ;; setup interrupt controller:
     out 0xa1, al
     ;; PIC is initialized, YIPI YAHOI!
 
-    mov al, 11111110b
+    mov al, 11111100b
     out 0x21, al
     mov al, 11111111b
     out 0xa1, al

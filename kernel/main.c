@@ -2,13 +2,13 @@
 #include "interrupt/inter.h"
 #include "mem/mem.h"
 #include "proccess/proccess.h"
-#include "lib/syscall.h"
+#include "syscalls/syscall.h"
 
 struct freemem MEM_MAP[50];
 
 void kernel(void)
 {
-    const char* welcome_mes = "[*] WELCOME TO RishiOS, initializing other computer processes...\n";
+    const char* welcome_mes = "[*] WELCOME TO RishiOS, initializing other components...\n";
     printk("%s\n", welcome_mes);
     
     init_idt(); // initialize interrupts...
@@ -18,6 +18,7 @@ void kernel(void)
     init_system_call();
     printk("[*] Launching proccess...\n");
     init_proccess();
+    clear_screen();
     launch();
     printk("[*] SHUTTING DOWN...\n");
 

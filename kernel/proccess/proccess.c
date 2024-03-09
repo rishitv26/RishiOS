@@ -67,12 +67,12 @@ void init_proccess(void)
     struct ProccessControl *proccess_control;
     struct Proccess *proc;
     struct HeadList *list;
-    uint64_t addr[] = {0x20000, 0x30000}; // all programs (and thir addresses)
+    uint64_t addr[] = {0x20000, 0x30000, 0x40000}; // all programs (and their addresses)
 
     proccess_control = get_pc();
     list = &proccess_control->ready_list;
 
-    for (int i = 0; i < 2; ++i) {
+    for (int i = 0; i < 3; ++i) {
         proc = find_unused_proccess();
         set_proccess_entry(proc, addr[i]);
         append_list_tail(list, (struct List*)proc);
@@ -165,6 +165,45 @@ void wake_up(int wait) {
         proccess->state = PROC_READY;
         append_list_tail(ready_list, (struct List*)proccess);
         proccess = (struct Proccess*)remove_list(wait_list, wait);
+    }
+}
+
+void exit(void) {
+    struct ProccessControl *proccess_controll;
+    struct Proccess *proccess;
+    struct HeadList *list;
+
+    proccess_controll = get_pc();
+    proccess = proccess_controll->current_proccess;
+    proccess->state = PROC_KILLED;
+
+    list = &proccess_controll->kill_list;
+    append_list_tail(list, (struct List*)proccess);
+
+    wake_up(1);
+    schedule();
+}
+
+void cleanup(void) {
+    struct ProccessControl *proccess_controll;
+    struct Proccess *proccess;
+    struct HeadList *list;
+
+    proccess_controll = get_pc();
+    list = &proccess_controll->kill_list;
+
+    while (true) {
+        if (!is_list_empty(list)) { // if there is stuff in killed list, delete it and save resources.
+            proccess = (struct Proccess*)remove_list_head(list);
+            ASSERT(proccess->state == PROC_KILLED);
+
+            // actuall cleanup:
+            kfree(proccess->stack);
+            free_vm(proccess->page_map);
+            memset(proccess, 0, sizeof(struct Proccess));
+        } else { // wait otherwise.
+            sleep(1);
+        }
     }
 }
 

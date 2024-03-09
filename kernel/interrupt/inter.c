@@ -1,6 +1,6 @@
 #include "inter.h" 
 #include "../lib/head.h"
-#include "../lib/syscall.h"
+#include "../syscalls/syscall.h"
 #include "../proccess/proccess.h"
 
 static struct idtptr idt_pointer; // create an idt pointer
@@ -76,8 +76,14 @@ void handler(struct TrapFrame *tf) // the one handler function, connecting all v
             system_call(tf);
             break;
         default:
-            printk("\n[Error at %d at ring %d] errorcode %d; virtual address of error: %x; normal address of error: %x", tf->trapno, (tf->cs & 3), tf->errorcode, read_cr2(), tf->rip); // handle errors in other rings
-            while (true);
+            if ((tf->cs & 3) == 3) {
+                // an error occured, exit now:
+                printk("\n[Exception #%d at ring %d] errorcode %d; virtual address of error: %x; normal address of error: %x", tf->trapno, (tf->cs & 3), tf->errorcode, read_cr2(), tf->rip); // handle errors in other rings
+                exit();
+            } else {
+                printk("\nA micelanious error occured...\n"); // handle errors in other rings
+                while (true);
+            }
     }
 
     if (tf->trapno == 32) {

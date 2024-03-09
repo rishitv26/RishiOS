@@ -225,3 +225,12 @@ void error_check(char *file, uint64_t line)
 
     while (true);
 }
+
+void clear_screen() {
+    for (int i = 0; i < SCREEN_HEIGHT*SCREEN_WIDTH; i++) {             
+       printk(" ");
+    }
+    struct ScreenBuffer* x = &screen_buffer;
+    x->column = 0;
+    x->row = 0;
+}
