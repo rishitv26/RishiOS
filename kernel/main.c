@@ -3,11 +3,13 @@
 #include "mem/mem.h"
 #include "proccess/proccess.h"
 #include "syscalls/syscall.h"
+#include "keyboard/keyboard.h"
 
 struct freemem MEM_MAP[50];
 
 void kernel(void)
 {
+    enable_cursor(0, SCREEN_WIDTH/2);
     const char* welcome_mes = "[*] WELCOME TO RishiOS, initializing other components...\n";
     printk("%s\n", welcome_mes);
     

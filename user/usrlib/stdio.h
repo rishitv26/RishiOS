@@ -10,6 +10,7 @@
 // io functions:
 int printf(const char *format, ...);
 void clearu();
+unsigned char keyboard_readu(void);
 
 // timing functions:
 void sleepu(uint64_t ticks);

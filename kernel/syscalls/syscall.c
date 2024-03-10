@@ -3,8 +3,9 @@
 #include "syscall.h"
 #include "../proccess/proccess.h"
 #include "../interrupt/inter.h"
+#include "../keyboard/keyboard.h"
 
-#define SYSTEM_CALL_NUM 4
+#define SYSTEM_CALL_NUM 6
 
 static SYSTEMCALL system_calls[SYSTEM_CALL_NUM]; // Array of system functions...
 
@@ -44,12 +45,17 @@ static int sys_clear(int64_t *argptr) {
     return 0;
 }
 
+static int sys_keyboard_read(int64_t *argptr) {
+    return read_key_buffer();
+}
+
 void init_system_call(void) {
     system_calls[0] = sys_write;
     system_calls[1] = sys_sleep;
     system_calls[2] = sys_exit;
     system_calls[3] = sys_cleanup;
     system_calls[4] = sys_clear;
+    system_calls[5] = sys_keyboard_read;
 }
 
 void system_call(struct TrapFrame *tf) { // finds appropriate system call...

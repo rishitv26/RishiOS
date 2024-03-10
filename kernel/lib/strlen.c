@@ -1,5 +1,6 @@
 #include "head.h"
 #include "../mem/mem.h"
+#include "../keyboard/keyboard.h"
 
 int strlen(void *arr)
 {
@@ -98,7 +99,6 @@ void write_screen(const char *buffer, int size, char color) // writes the charac
 
             column -= 1;
             sb->buffer[column*2 + row*SCREEN_WIDTH] = 0;
-            sb->buffer[column*2 + row*SCREEN_WIDTH + 1] = 0;
         }
         else {
             sb->buffer[column * 2 + row * SCREEN_WIDTH] = buffer[i];
@@ -115,6 +115,7 @@ void write_screen(const char *buffer, int size, char color) // writes the charac
 
     sb->column = column;
     sb->row = row;
+    update_cursor(column, row);
 }
 
 // format can be treated as a normal string.
@@ -243,4 +244,9 @@ void clear_screen() {
     struct ScreenBuffer* x = &screen_buffer;
     x->column = 0;
     x->row = 0;
+    update_cursor(x->column, x->row);
+}
+
+struct ScreenBuffer* get_buffer() {
+    return &screen_buffer;
 }
