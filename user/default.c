@@ -22,18 +22,16 @@ static int read_cmd(char *buffer) {
 
     while (true) {
         c[0] = keyboard_readu();
+        printf("%s", c);
 
         if (c[0] == '\n' || buffer_size >= 80) {
-            printf("%s", c);
             break;
         } else if (c[0] == '\b') {
             if (buffer_size > 0) {
-                buffer_size--;
-                printf("%s", c);
+                buffer[--buffer_size] = 0;
             }
         } else {
             buffer[buffer_size++] = c[0];
-            printf("%s", c);
         }
     }
 }
