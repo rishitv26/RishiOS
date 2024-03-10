@@ -84,7 +84,7 @@ static char shift_key_map[256] = {
     'V', 'B', 'N', 'M', '<', '>', '?', 0, '*', 0, ' '
 };
 
-static struct KeyboardBuffer key_buffer = {{0}, 0, 0, 10};
+static struct KeyboardBuffer key_buffer = {{0}, 0, 0, 500};
 static unsigned int flag;
 
 static char keyboard_read(void) {
@@ -94,7 +94,7 @@ static char keyboard_read(void) {
     scan_code = in_byte(0x60);
     
     if (scan_code == 0xE0) {
-        flag |= E0_SIGN;   
+        flag |= E0_SIGN;
         return 0;
     }
 

@@ -9,7 +9,7 @@ struct freemem MEM_MAP[50];
 
 void kernel(void)
 {
-    enable_cursor(0, SCREEN_WIDTH/2);
+    //enable_cursor(0, SCREEN_WIDTH/2); // mess with numbers to change cursor.
     const char* welcome_mes = "[*] WELCOME TO RishiOS, initializing other components...\n";
     printk("%s\n", welcome_mes);
     

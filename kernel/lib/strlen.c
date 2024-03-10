@@ -238,10 +238,10 @@ void error_check(char *file, uint64_t line)
 }
 
 void clear_screen() {
-    for (int i = 0; i < SCREEN_HEIGHT*SCREEN_WIDTH; i++) {             
-       printk(" ");
-    }
     struct ScreenBuffer* x = &screen_buffer;
+    for (int i = 0; i < SCREEN_HEIGHT*SCREEN_WIDTH; i+=2) {             
+       x->buffer[i] = '\0';
+    }
     x->column = 0;
     x->row = 0;
     update_cursor(x->column, x->row);

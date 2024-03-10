@@ -43,12 +43,14 @@ static int parse_cmd(char* buffer, int buffer_size) {
 
     if ((are_equal(buffer, "totalmem"))) {
         cmd = 0;
+    } else if (are_equal(buffer, "cls") || are_equal(buffer, "clear")) {
+        cmd = 1;
     }
     return cmd;
 }
 
 static void execute_cmd(int cmd) {
-    CmdFunc cmd_list[] = {cmd_get_total_memory};
+    CmdFunc cmd_list[] = {cmd_get_total_memory, clearu};
     cmd_list[cmd]();
 }
 
