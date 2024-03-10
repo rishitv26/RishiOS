@@ -5,7 +5,7 @@
 #include "../interrupt/inter.h"
 #include "../keyboard/keyboard.h"
 
-#define SYSTEM_CALL_NUM 6
+#define SYSTEM_CALL_NUM 7
 
 static SYSTEMCALL system_calls[SYSTEM_CALL_NUM]; // Array of system functions...
 
@@ -49,6 +49,10 @@ static int sys_keyboard_read(int64_t *argptr) {
     return read_key_buffer();
 }
 
+static int sys_get_total_memory(int64_t *argptr) {
+    return get_total_memory();
+}
+
 void init_system_call(void) {
     system_calls[0] = sys_write;
     system_calls[1] = sys_sleep;
@@ -56,6 +60,7 @@ void init_system_call(void) {
     system_calls[3] = sys_cleanup;
     system_calls[4] = sys_clear;
     system_calls[5] = sys_keyboard_read;
+    system_calls[6] = sys_get_total_memory;
 }
 
 void system_call(struct TrapFrame *tf) { // finds appropriate system call...

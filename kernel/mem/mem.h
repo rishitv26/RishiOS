@@ -40,6 +40,7 @@ typedef PD* PDPTR;
 #define PTE_ADDR(p) (((uint64_t)p >> 21) << 21) // conversion table conversions...
 
 void init_mem(struct freemem *memory_map);
+uint64_t get_total_memory(void);
 void *kalloc(void);
 void kfree(uint64_t v);
 void free_pages(uint64_t map, uint64_t vstart, uint64_t vend);

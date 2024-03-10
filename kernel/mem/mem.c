@@ -7,12 +7,13 @@ extern char end; // defined in linker script...
 static void free_region(uint64_t s, uint64_t e);
 static struct page free_memory; // our first page 'node'
 static uint64_t memory_end;
+static uint64_t total;
 
 void init_mem(struct freemem *memory_map) // work on this...
 {
     printk("\n[*] INITIALIZING MEMORY... (memory type 1 is usable memory)\n");
     int32_t count = *(int32_t*)0x9000;
-    uint64_t total = 0;
+    total = 0;
     struct e820 *mem_map = (struct e820*)0x9008;
     int free_c = 0;
 
@@ -51,6 +52,10 @@ void init_mem(struct freemem *memory_map) // work on this...
 
     init_kvm(); // this is giving me the error... please help
     printk("[*] Successfully initialized memory system...\n");
+}
+
+uint64_t get_total_memory(void) {
+    return total;
 }
 
 static void free_region(uint64_t s, uint64_t e)

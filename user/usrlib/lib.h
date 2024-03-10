@@ -1,5 +1,6 @@
 #include "stdstr.h"
 #include "stdio.h"
+#include "stdmem.h"
 
 #include "stdarg.h"
 #include "stdint.h"
