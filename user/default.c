@@ -72,9 +72,8 @@ int main(void) {
             execute_cmd(cmd);
         }
         // clear buffer:
-        for (int i = 0; i < buffer_size; ++i) {
-            buffer[i] = ' ';
-        }
+        memset(buffer, '\0', 80);
+        buffer_size = 0;
     }
     
     return 0;
