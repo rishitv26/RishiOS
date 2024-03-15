@@ -11,6 +11,7 @@
 int printf(const char *format, ...);
 void clearu();
 unsigned char keyboard_readu(void);
+void nscrcolor(char c);
 
 // timing functions:
 void sleepu(uint64_t ticks);

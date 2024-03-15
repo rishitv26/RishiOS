@@ -8,6 +8,7 @@ section .text
 [global clearu]
 [global keyboard_readu]
 [global cmd_get_total_memoryu]
+[global nscrcolor]
 
 writeu:
     sub rsp,16 ; setup arguments for interrupt to be called.
@@ -68,6 +69,18 @@ cmd_get_total_memoryu:
     mov rdi, 0
 
     int 0x80
+    ret
+
+nscrcolor:
+    mov eax, 7
+    sub rsp, 8 ; setup arguments for interupt to be called
+    mov [rsp], rdi
+    mov rdi, 1
+    mov rsi, rsp
+
+    int 0x80
+
+    add rsp, 8 ; restore stack
     ret
 
 [global memset]

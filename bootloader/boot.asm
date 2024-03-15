@@ -27,7 +27,7 @@ testext:
 loadloader:
     mov si, readpack ; this is structure for loading proccess
     mov word[si], 0x10 ; size
-    mov word[si + 2], 5 ; number of sectors to be loaded
+    mov word[si + 2], 15 ; number of sectors to be loaded
     mov word[si + 4], 0x7e00 ; where our next disk is
     mov word[si + 6], 0
     mov dword[si + 8], 1 ; which sector exactly is going to be loaded
@@ -56,15 +56,15 @@ mes:
 nosup: db "[*] error.", 0
 driveid: db 0
 readpack: times 16 db 0
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;os.remove(system31)
 times (0x1be-($-$$)) db 0
 
 db 80h ; boot indicater for bios                     ;
-db 0,2,0 ; starting part of CHS                      ;
-db 0f0h ; type of CHS                                ;
-db 0ffh, 0ffh, 0ffh ; end of CHS                     ;
-dd 1 ; tells that this is the start AKA boot sector  ; This whole thing is to trick some BIOS's
-dd (20 * 16 * 63 - 1) ; calculate the size via math  ; that this is a hard disk
+db 1,1,0 ; starting part of CHS                      ;
+db 06h ; type of CHS                                 ;
+db 0fh, 03fh, 0cah ; end of CHS                      ;
+dd 3fh ; tells that this is the start AKA boot sector  ; This whole thing is to trick some BIOS's
+dd 031f11h ; helps to integrate freedos disk partition for FAT16 filesystem.
                                                      ;
 times (16*3) db 0 ; more zero's                      ;
                                                      ;
