@@ -25,78 +25,40 @@ start:
     mov bx, mes
     call print ;; we can go to long mode!!
 
-loadkernel: ;; load our kernel:
-    mov si, readpack 
-    mov word[si], 0x10 
-    mov word[si + 2], 100 
-    mov word[si + 4], 0
-    mov word[si + 6], 0x1000
-    mov dword[si + 8], 6
-    mov dword[si + 0xc], 0
-    jc loaderror ; if it fails, print error and halt.
-    mov dl, [driveid]
-    mov ah, 0x42
-    int 0x13
-    jc loaderror
-    mov dl, [driveid]
-;; =============================================== LOAD ALL USERS =================================:
-loaduser: ;; load our user:
-    mov si, readpack 
-    mov word[si], 0x10 
-    mov word[si + 2], 10 
-    mov word[si + 4], 0
-    mov word[si + 6], 0x2000 ; address
-    mov dword[si + 8], 106 ; sector
-    mov dword[si + 0xc], 0
-    jc loaderror ; if it fails, print error and halt.
-    mov dl, [driveid]
-    mov ah, 0x42
-    int 0x13
-    jc loaderror
-    mov dl, [driveid]
+    mov ax, 0x2000
+    mov es, ax
 
-loaduser2: ;; load our user:
-    mov si, readpack 
-    mov word[si], 0x10 
-    mov word[si + 2], 10 
-    mov word[si + 4], 0
-    mov word[si + 6], 0x3000 ; MIGHT BE AN EXAMPLE
-    mov dword[si + 8], 116
-    mov dword[si + 0xc], 0
-    jc loaderror ; if it fails, print error and halt.
-    mov dl, [driveid]
-    mov ah, 0x42
-    int 0x13
-    jc loaderror
-    mov dl, [driveid]
-
-loaduser3: ;; load our user:
-    mov si, readpack 
-    mov word[si], 0x10 
-    mov word[si + 2], 10 
-    mov word[si + 4], 0
-    mov word[si + 6], 0x4000 ; MIGHT BE AN EXAMPLE
-    mov dword[si + 8], 126
-    mov dword[si + 0xc], 0
-    jc loaderror ; if it fails, print error and halt.
-    mov dl, [driveid]
-    mov ah, 0x42
-    int 0x13
-    jc loaderror
-    mov dl, [driveid]
-;; =============================================== LOAD REST =================================:
+;; ====== LOAD DISK =================================:
 
 meminfo: ; See what sections of memory are usable for us.
     mov eax, 0xe820
     mov edx, 0x534d4150
     mov ecx, 20
-    mov dword[0x9000], 0
-    mov edi, 0x9008
+    mov dword[es:0], 0
+
+    mov edi, 8
     xor ebx, ebx ; all of that is to prepare interrupt 15h
     int 0x15 ; This is there to get all free memory to us, to be used by kernel...
     jc loaderror ; there was an error in retrieving memory map
 
-startmeminfo:
+getmeminfo:
+    cmp dword[es:di+16], 1
+    jne cont
+    cmp dword[es:di+4], 0
+    jne cont
+    mov eax, [es:di]
+    cmp eax, 0x30000000
+    ja cont
+    cmp dword[es:di + 12], 0
+    jne find
+    add eax, [es:di + 8]
+    cmp eax, (0x30000000 + 100*1024*1024)
+    jb cont
+
+find:
+    mov byte[loadimage], 1
+
+cont:
     add edi, 20 ; increment by 20 to check if next block is usable...
     inc dword[0x9000]
     test ebx, ebx
@@ -109,7 +71,8 @@ startmeminfo:
     jnc startmeminfo ; keep on going if there is more memory availible to us...
     
 finishmeminfo:
-    call kernelsuccess
+    cmp byte[loadimage], 1
+    jne nosup
 
 testa20: ; if a20 line is off, 0x107c00 = 0x7c00 (use this to test)
     mov ax, 0xffff
@@ -123,6 +86,7 @@ testa20: ; if a20 line is off, 0x107c00 = 0x7c00 (use this to test)
     ;; Yay! yipi Yahoi!
 
 setvidmode:
+    xchg bx, bx
     mov ax, 3
     int 0x10 ; set video mode to text mode...
 
@@ -190,6 +154,7 @@ a20off: db "[*] ERROR: a20 IS OFF... MUST SET IT ON."
     db 0
 driveid: db 0
 readpack: times 16 db 0
+loadimage: db 0
 
 ;; Important Tables ----------------------------------------------->
 gdt32: ; this is the gdt in its full glory...
