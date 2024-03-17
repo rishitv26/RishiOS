@@ -1,7 +1,6 @@
 print:
     pusha
     mov ah, 0x0e
-
 string_print:
     mov al, [bx] ; bx cant be compared directly
     cmp al, 0
@@ -9,7 +8,6 @@ string_print:
     int 0x10
     inc bx
     jmp string_print
-
 e:
     popa
     ret
@@ -24,4 +22,4 @@ debug_cont:
     call print
     ret
 
-debugmes: db "this is a debug message...", 0
+debugmes: db "this is DA debug message...", 0

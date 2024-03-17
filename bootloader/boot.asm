@@ -1,73 +1,72 @@
-;
-; This is where the operating system starts... the begining of everything...
-;
-;; tasks: read second sector into RAM, and jump to a less limited file, loader.asm
+; ;
+; ; This is where the operating system starts... the begining of everything...
+; ;
+; ;; tasks: read second sector into RAM, and jump to a less limited file, loader.asm
 
-[bits 16]
-[org 0x7c00] ; MBR boot location
+[BITS 16]
+[ORG 0x7c00]
 
-start: ; start command.
-    mov bx, mes
-    call print
-    xor ax, ax ; initialize our lovely stack
-    mov ds, ax
-    mov es, ax
-    mov ss, ax
-    mov sp, 0x7c00
+start:
+    xor ax,ax   
+    mov ds,ax
+    mov es,ax  
+    mov ss,ax
+    mov sp,0x7c00
 
-testext:
-    mov [driveid], dl
-    mov ah, 0x41
-    mov bx, 0x55aa
+TestDiskExtension:
+    mov [DriveId],dl
+    mov ah,0x41
+    mov bx,0x55aa
     int 0x13
-    jc nosupport ; do something if disk extension is not supported
-    cmp bx, 0xaa55
-    jne nosupport ; do something if disk extension is not supported
+    jc NotSupport
+    cmp bx,0xaa55
+    jne NotSupport
 
-loadloader:
-    mov si, readpack ; this is structure for loading proccess
-    mov word[si], 0x10 ; size
-    mov word[si + 2], 15 ; number of sectors to be loaded
-    mov word[si + 4], 0x7e00 ; where our next disk is
-    mov word[si + 6], 0
-    mov dword[si + 8], 1 ; which sector exactly is going to be loaded
-    mov dword[si + 0xc], 0
-    jc loaderror ; if it fails, print error and halt.
-    mov dl, [driveid]
-    mov ah, 0x42
+LoadLoader:
+    mov si,ReadPacket
+    mov word[si],0x10
+    mov word[si+2],15
+    mov word[si+4],0x7e00
+    mov word[si+6],0
+    mov dword[si+8],1
+    mov dword[si+0xc],0
+    mov dl,[DriveId]
+    mov ah,0x42
     int 0x13
-    jc loaderror
-    mov dl, [driveid]
-    jmp 0x7e00 ; far jump to next section of our code
+    jc  ReadError
 
-loaderror:
-nosupport:
-    mov bx, nosup
-    call print
-end:
-    hlt ; this will be resumed with a interupt
-    jmp end
+    mov dl,[DriveId]
+    jmp 0x7e00 
 
-%include 'print_real.asm'
-mes: 
-    db "[*] booting..."
-    times (80 - ($-mes)) db " "
-    db 0
-nosup: db "[*] error.", 0
-driveid: db 0
-readpack: times 16 db 0
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;os.remove(system31)
+ReadError:
+NotSupport:
+    mov ah,0x13
+    mov al,1
+    mov bx,0xa
+    xor dx,dx
+    mov bp,Message
+    mov cx,MessageLen 
+    int 0x10
+
+End:
+    hlt    
+    jmp End
+    
+DriveId:    db 0
+Message:    db "There was an error in boot proccess..."
+MessageLen: equ $-Message
+ReadPacket: times 16 db 0
+
 times (0x1be-($-$$)) db 0
 
-db 80h ; boot indicater for bios                     ;
-db 1,1,0 ; starting part of CHS                      ;
-db 06h ; type of CHS                                 ;
-db 0fh, 03fh, 0cah ; end of CHS                      ;
-dd 3fh ; tells that this is the start AKA boot sector  ; This whole thing is to trick some BIOS's
-dd 031f11h ; helps to integrate freedos disk partition for FAT16 filesystem.
-                                                     ;
-times (16*3) db 0 ; more zero's                      ;
-                                                     ;
-db 0x55
-db 0xaa ; these seperate this boot code from rest of memory. 
-; this is what computer looks for on startup.
+    db 80h
+    db 1,1,0
+    db 06h
+    db 0fh,03fh,0cah
+    dd 3fh
+    dd 031f11h
+	
+    times (16*3) db 0
+
+    db 0x55
+    db 0xaa
