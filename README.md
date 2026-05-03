@@ -100,5 +100,13 @@ scripts\windowsrun.bat
 
 Requires WSL with Debian, NASM, and `x86_64-elf-gcc` installed inside WSL.
 
+## Results
+
+Here is how RishiOS currently looks like from the QEMU emulator:
+
+https://github.com/user-attachments/assets/eab2a865-72d5-4514-ad51-c73e30dd092b
+
+> This is from a MacOS system
+
 ## Suggestions for me?
 I am new to the world of OS development, and would love any suggestions for better code, or just tips in general :)
