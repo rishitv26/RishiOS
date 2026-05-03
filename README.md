@@ -102,7 +102,3 @@ Requires WSL with Debian, NASM, and `x86_64-elf-gcc` installed inside WSL.
 
 ## Suggestions for me?
 I am new to the world of OS development, and would love any suggestions for better code, or just tips in general :)
-
-## License
-
-MIT
